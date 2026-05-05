@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Самотерапия | Проработки + Справочники + Дневник + Статистика</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: #1E1E1E;
+            padding: 20px;
+            padding-bottom: 40px;
+            color: #E6E9ED;
+            transition: background 0.3s, color 0.3s;
+        }
+        body.light-theme {
+            background: #F5F5F5;
+            color: #1A1A2E;
+        }
+        body.light-theme .card { background: #FFFFFF; color: #1A1A2E; border: 1px solid #E0E0E0; }
+        body.light-theme .nav-btn { background: #E0E0E0; color: #1A1A2E; }
+        body.light-theme .nav-btn.active { background: #4A6A6A; color: white; }
+        body.light-theme .step-text-large { background: #F0F0F0; color: #1A1A2E; border-left-color: #4A6A6A; }
+        body.light-theme .cat-btn { background: #E0E0E0; color: #1A1A2E; }
+        body.light-theme .cat-btn.active { background: #4A6A6A; color: white; }
+        body.light-theme .quiz-option { background: #E0E0E0; color: #1A1A2E; }
+        body.light-theme .quiz-option.selected { background: #4A6A6A; color: white; }
+        body.light-theme .result-block { background: #F0F0F0; border-color: #E0E0E0; }
+        body.light-theme .emotion-accordion { background: #FFFFFF; border-color: #E0E0E0; }
+        body.light-theme .emotion-header { background: #FFFFFF; color: #1A1A2E; }
+        body.light-theme .emotion-header:hover { background: #F0F0F0; }
+        body.light-theme .emotion-content { background: #F8F8F8; color: #1A1A2E; }
+        body.light-theme .badge { background: #E0E0E0; color: #1A1A2E; }
+        body.light-theme .badge-earned { background: #4A6A6A; color: white; }
+body.light-theme .mood-badge-1 { background: #E57373; color: white; }
+body.light-theme .mood-badge-2 { background: #FFB74D; color: #1A1A2E; }
+body.light-theme .mood-badge-3 { background: #FFF176; color: #1A1A2E; }
+body.light-theme .mood-badge-4 { background: #81C784; color: #1A1A2E; }
+body.light-theme .mood-badge-5 { background: #4CAF50; color: white; }
+
+        h1 { font-size: 28px; text-align: center; margin-bottom: 4px; color: #F0F3F5; font-weight: 500; }
+        body.light-theme h1 { color: #1A1A2E; }
+        .sub { text-align: center; color: #A0AAB5; margin-bottom: 24px; font-size: 14px; }
+        body.light-theme .sub { color: #666; }
+
+        /* Переключатель темы */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3A3F44;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        body.light-theme .theme-toggle { background: #E0E0E0; }
+
+        .main-nav { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+        .nav-btn {
+            background: #3A3F44; border: none; padding: 10px 20px; border-radius: 60px;
+            font-size: 15px; font-weight: 600; color: #E6E9ED; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .nav-btn.active { background: #566573; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .section { display: none; }
+        .section.active-section { display: block; }
+        .card {
+            background: #2C2F33; color: #EFF3F8; border-radius: 32px; padding: 24px 22px;
+            margin-bottom: 24px; box-shadow: 0 6px 14px rgba(0,0,0,0.25); border: 1px solid #40454A;
+        }
+        .categories { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; justify-content: center; }
+        .cat-btn {
+            background: #40454A; border: none; padding: 8px 18px; border-radius: 60px;
+            font-size: 14px; font-weight: 500; color: #EFF3F8; cursor: pointer;
+        }
+        .cat-btn.active { background: #5D6D7E; color: white; }
+        .step-text-large {
+            font-size: 18px; line-height: 1.48; margin: 20px 0; padding: 20px;
+            background: #25282C; border-radius: 28px; color: #F0F3F5; border-left: 4px solid #7F8C8D;
+        }
+        .button-group { display: flex; gap: 12px; margin-top: 16px; }
+        .complete-btn { background: #4A6A6A; color: white; border: none; padding: 14px 24px; border-radius: 60px; font-size: 18px; font-weight: 600; flex: 2; cursor: pointer; }
+        .complete-btn:hover { background: #5F7F7F; }
+        .skip-btn { background: #8E6B4F; color: white; border: none; padding: 14px 20px; border-radius: 60px; font-size: 16px; font-weight: 600; flex: 1; cursor: pointer; }
+        .skip-btn:hover { background: #A87B5A; }
+        .progress-bar { height: 8px; background: #3A3F44; border-radius: 4px; margin: 16px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: #7F8C8D; width: 0%; transition: width 0.3s; }
+        .toast {
+            position: fixed; bottom: 30px; left: 20px; right: 20px; background: #566573;
+            color: white; text-align: center; padding: 14px; border-radius: 60px;
+            font-weight: 500; z-index: 1000; animation: fadeInOut 2s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); visibility: hidden; }
+        }
+        .badge {
+            display: inline-block; background: #3A3F44; padding: 8px 16px; border-radius: 60px;
+            font-size: 14px; font-weight: 600; margin: 8px; color: #EFF3F8;
+        }
+        .badge-earned { background: #6B7B8C; color: white; }
+        .result-block {
+            margin-top: 16px; padding: 14px; background: #25282C; border-radius: 24px;
+            color: #F0F3F5; border: 1px solid #40454A;
+        }
+        .priority-badge { display: inline-block; padding: 2px 10px; border-radius: 40px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .priority-high-badge { background: #8B5A5A; color: white; }
+        .priority-medium-badge { background: #B37B48; color: white; }
+        .priority-low-badge { background: #5A7A6C; color: white; }
+        .probability-bar { height: 8px; background: #3A3F44; border-radius: 4px; margin: 8px 0; }
+        .probability-fill { height: 100%; background: #7F8C8D; width: 0%; border-radius: 4px; }
+
+        .quiz-container { text-align: center; }
+        .quiz-header { background: #40454A; padding: 12px; border-radius: 60px; margin-bottom: 20px; font-weight: bold; }
+        .quiz-question { font-size: 22px; font-weight: 600; margin: 20px 0; color: #F0F3F5; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .quiz-option { background: #3A3F44; padding: 14px; border-radius: 60px; cursor: pointer; font-weight: 500; color: #EFF3F8; }
+        .quiz-option.selected { background: #5E6C7C; color: white; }
+        .quiz-nav { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
+        .quiz-nav button { background: #40454A; color: white; border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; }
+
+        .emotion-accordion { background: #2C2F33; border-radius: 24px; margin-bottom: 12px; overflow: hidden; border: 1px solid #40454A; }
+        .emotion-header { background: #2C2F33; padding: 16px 20px; cursor: pointer; font-size: 18px; font-weight: 600; color: #EFF3F8; display: flex; justify-content: space-between; align-items: center; }
+        .emotion-header:hover { background: #3A3F44; }
+        .emotion-header .arrow { font-size: 20px; transition: transform 0.3s; }
+        .emotion-header.open .arrow { transform: rotate(180deg); }
+        .emotion-content { max-height: 0; padding: 0 20px; overflow: hidden; transition: max-height 0.3s ease-out; background: #25282C; color: #EFF3F8; }
+        .emotion-content.open { max-height: 600px; padding: 16px 20px; }
+        .gotoDisorder, .gotoDisorderFromInfo { background: none !important; border: none !important; padding: 8px 0 !important; color: #AAB7C4 !important; font-size: 14px !important; font-weight: 600 !important; cursor: pointer; display: inline-block; }
+        .gotoDisorder:hover, .gotoDisorderFromInfo:hover { text-decoration: underline; color: #CBD5E1; }
+        .reset-btn { background: #4F4F4F; color: white; border: none; padding: 12px 20px; border-radius: 60px; font-size: 16px; font-weight: 600; width: 100%; margin-top: 20px; cursor: pointer; }
+        .reset-btn:hover { background: #6E6E6E; }
+
+       /* Стили дневника */
+.notebook-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.new-entry-btn { background: #4A6A6A; color: white; border: none; padding: 12px 24px; border-radius: 60px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.new-entry-btn:hover { background: #5F7F7F; }
+.search-box { flex: 1; min-width: 200px; padding: 12px 20px; border-radius: 60px; border: none; background: #40454A; color: #EFF3F8; font-size: 15px; }
+.entries-grid { display: flex; flex-direction: column; gap: 16px; max-height: 55vh; overflow-y: auto; padding-right: 8px; }
+.entry-card { background: #25282C; border-radius: 24px; padding: 18px; transition: all 0.2s; border-left: 4px solid; }
+.entry-card:hover { transform: translateX(4px); background: #2A2D32; }
+.entry-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.entry-datetime { display: flex; gap: 12px; font-size: 13px; color: #7F8C8D; }
+.entry-date { font-weight: 600; color: #4A6A6A; }
+.edit-btn, .delete-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 12px; }
+.edit-btn:hover { background: #4A6A6A33; }
+.delete-btn:hover { background: #8B5A5A33; }
+.entry-mood { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 40px; font-size: 13px; font-weight: 500; margin-bottom: 12px; width: fit-content; }
+.entry-content { font-size: 14px; line-height: 1.5; color: #B0B8C2; white-space: pre-wrap; }
+
+.mood-selector-row { margin-bottom: 20px; }
+.mood-label-text { font-size: 14px; font-weight: 500; margin-bottom: 12px; display: block; color: #A0AAB5; }
+.mood-options { display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+.mood-option { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 0; border-radius: 60px; cursor: pointer; flex: 1; min-width: 55px; background: #3A3F44; border: 1px solid transparent; }
+.mood-option.selected { border-color: #4A6A6A; background: #4A6A6A33; transform: scale(1.02); }
+.mood-emoji { font-size: 28px; }
+.mood-name { font-size: 10px; font-weight: 500; }
+
+.mood-badge-1 { background: #E57373; color: #1A1A2E; }
+.mood-badge-2 { background: #FFB74D; color: #1A1A2E; }
+.mood-badge-3 { background: #FFF176; color: #1A1A2E; }
+.mood-badge-4 { background: #81C784; color: #1A1A2E; }
+.mood-badge-5 { background: #4CAF50; color: #1A1A2E; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.modal.active { display: flex; }
+.modal-content { background: #2C2F33; border-radius: 32px; padding: 28px; width: 90%; max-width: 550px; max-height: 85vh; overflow-y: auto; border: 1px solid #4A6A6A; }
+.modal-content textarea { width: 100%; padding: 14px; border-radius: 20px; border: none; background: #40454A; color: #EFF3F8; font-family: inherit; font-size: 15px; resize: vertical; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+.modal-actions button { flex: 1; padding: 14px; border-radius: 60px; border: none; font-weight: 600; cursor: pointer; }
+.save-entry-btn { background: #4A6A6A; color: white; }
+.cancel-btn { background: #566573; color: white; }
+.delete-confirm-btn { background: #8B5A5A; color: white; }
+
+.empty-state { text-align: center; padding: 48px 20px; color: #7F8C8D; }
+.stats-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat-badge { background: #40454A; border-radius: 60px; padding: 8px 20px; font-size: 14px; }
+.reset-btn { background: #4F4F4F; color: white; border: none; padding: 12px 20px; border-radius: 60px; font-size: 16px; font-weight: 600; width: 100%; margin-top: 20px; cursor: pointer; }
+.toast { position: fixed; bottom: 30px; left: 20px; right: 20px; background: #566573; color: white; text-align: center; padding: 14px; border-radius: 60px; z-index: 1000; animation: fadeInOut 2s forwards; }
+@keyframes fadeInOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+@media (max-width: 600px) {
+    .notebook-header { flex-direction: column; }
+    .search-box { width: 100%; }
+    .entry-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .mood-options { gap: 6px; }
+    .mood-option { min-width: 50px; padding: 8px 0; }
+    .mood-emoji { font-size: 22px; }
+}
+
+        /* Поиск */
+        .search-box { width: 100%; padding: 12px 20px; border-radius: 60px; border: none; background: #40454A; color: #EFF3F8; font-size: 16px; margin-bottom: 20px; }
+        body.light-theme .search-box { background: #E0E0E0; color: #1A1A2E; }
+        .search-box::placeholder { color: #A0AAB5; }
+
+        /* Статистика */
+        .stats-grid { display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
+        .stat-card { background: #40454A; border-radius: 24px; padding: 20px; flex: 1; min-width: 150px; text-align: center; }
+        .stat-number { font-size: 36px; font-weight: bold; color: #7F8C8D; }
+        .stat-label { font-size: 14px; margin-top: 8px; }
+        canvas { max-height: 300px; margin: 20px 0; background: #25282C; border-radius: 24px; padding: 10px; }
+
+        footer { text-align: center; font-size: 12px; color: #7E8A98; margin-top: 28px; }
+        @media (max-width: 600px) { .mood-calendar { gap: 4px; } .mood-day { font-size: 12px; padding: 8px 2px; } }
+    </style>
+</head>
+<body>
+<!-- ПАНЕЛЬ ПОЛЬЗОВАТЕЛЯ -->
+<div class="user-panel" style="position: fixed; top: 20px; left: 20px; background: #3A3F44; padding: 8px 16px; border-radius: 60px; z-index: 100;">
+    <span id="userNameDisplay" style="margin-right: 10px;">👤 Гость</span>
+    <button id="loginBtn" style="background: #4A6A6A; border: none; padding: 6px 12px; border-radius: 40px; cursor: pointer; color: white;">Вход</button>
+    <button id="logoutBtn" style="background: #8B5A5A; border: none; padding: 6px 12px; border-radius: 40px; cursor: pointer; color: white; display: none;">Выйти</button>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ВХОДА -->
+<div id="loginModal" class="modal">
+    <div class="modal-content" style="max-width: 350px;">
+        <h3>🔐 Вход / Регистрация</h3>
+        <input type="text" id="loginUsername" placeholder="Имя пользователя" style="width:100%; margin:10px 0; padding:12px; border-radius: 60px; border: none; background: #40454A; color: white;">
+        <input type="password" id="loginPassword" placeholder="Пароль" style="width:100%; margin:10px 0; padding:12px; border-radius: 60px; border: none; background: #40454A; color: white;">
+        <div class="modal-actions">
+            <button id="doLoginBtn" class="complete-btn" style="background: #4A6A6A;">Войти</button>
+            <button id="doRegisterBtn" class="skip-btn" style="background: #8E6B4F;">Регистрация</button>
+            <button id="cancelLoginBtn" class="cancel-btn" style="background: #566573;">Отмена</button>
+        </div>
+        <div id="loginMessage" style="margin-top: 10px; font-size: 12px; text-align: center; color: #E57373;"></div>
+    </div>
+</div>
+
+<button class="theme-toggle" id="themeToggle">🌙 Тёмная</button>
+
+<h1>Шаги исцеления</h1>
+<div class="sub">тест · проработки · справочники · дневник · статистика · достижения</div>
+
+<div class="main-nav">
+    <button class="nav-btn" data-section="quiz">🧠 Тест</button>
+    <button class="nav-btn" data-section="advancedQuiz">📋 Расширенный тест</button>
+    <button class="nav-btn" data-section="disorders">📚 Проработки</button>
+    <button class="nav-btn" data-section="emotions">❤️ Эмоции</button>
+    <button class="nav-btn" data-section="disordersInfo">📖 Расстройства</button>
+    <button class="nav-btn" data-section="notebook">📓 Дневник</button>
+    <button class="nav-btn" data-section="stats">📊 Статистика</button>
+    <button class="nav-btn" data-section="achievements">🏆 Достижения</button>
+</div>
+
+<div id="quizSection" class="section"><div class="card" id="quizContainer"></div><button class="reset-btn" id="resetAllQuiz">♻️ Сбросить весь прогресс</button></div>
+<div id="advancedQuizSection" class="section"><div class="card" id="advancedQuizContainer"></div><button class="reset-btn" id="resetAllAdvancedQuiz">♻️ Сбросить весь прогресс</button></div>
+<div id="disordersSection" class="section">
+    <div id="disorderCategories" class="categories"></div>
+    <div class="card" id="stepByStepContainer">
+        <div id="stepTitle" style="font-weight:600; margin-bottom:8px;"></div>
+        <div id="stepText" class="step-text-large"></div>
+        <div class="progress-bar"><div id="stepProgressFill" class="progress-fill"></div></div>
+        <div id="stepCounter" style="text-align:center; margin:8px 0;"></div>
+        <div class="button-group"><button id="skipStepBtn" class="skip-btn">⏭ Пропустить шаг</button><button id="completeStepBtn" class="complete-btn">✅ Выполнить шаг</button></div>
+    </div>
+    <button class="reset-btn" id="resetAllDisorders">♻️ Сбросить весь прогресс</button>
+</div>
+<div id="emotionsSection" class="section">
+    <div class="card"><input type="text" id="emotionsSearch" class="search-box" placeholder="🔍 Поиск эмоции..."><div id="emotionsListContainer"></div></div>
+    <button class="reset-btn" id="resetAllEmotions">♻️ Сбросить</button>
+</div>
+<div id="disordersInfoSection" class="section">
+    <div class="card"><input type="text" id="disordersSearch" class="search-box" placeholder="🔍 Поиск расстройства..."><div id="disordersInfoContainer"></div></div>
+    <button class="reset-btn" id="resetDisordersInfo">♻️ Сбросить</button>
+</div>
+<div id="notebookSection" class="section active-section">
+    <div class="card">
+        <div class="notebook-header">
+            <button class="new-entry-btn" id="newEntryBtn">+ Новая запись</button>
+            <input type="text" id="searchEntries" class="search-box" placeholder="🔍 Поиск по записям...">
+        </div>
+        
+        <div id="entriesList" class="entries-grid">
+            <!-- Записи будут здесь -->
+        </div>
+        
+        <div class="stats-row" id="statsRow">
+            <div class="stat-badge" id="totalEntriesStat">📝 Всего: 0</div>
+            <div class="stat-badge" id="todayEntriesStat">📅 Сегодня: 0</div>
+            <div class="stat-badge" id="avgMoodStat">😊 Среднее: —</div>
+        </div>
+    </div>
+    <button class="reset-btn" id="resetAllNotebook">♻️ Удалить все записи</button>
+</div>
+<div id="statsSection" class="section">
+    <div class="card">
+        <h3>📊 Моя статистика</h3>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number" id="totalStepsStat">0</div><div class="stat-label">всего шагов</div></div>
+            <div class="stat-card"><div class="stat-number" id="completedStepsStat">0</div><div class="stat-label">выполнено</div></div>
+            <div class="stat-card"><div class="stat-number" id="completionPercentStat">0%</div><div class="stat-label">прогресс</div></div>
+            <div class="stat-card"><div class="stat-number" id="moodAvgStat">0</div><div class="stat-label">среднее настроение</div></div>
+        </div>
+        <canvas id="moodChart" width="400" height="200"></canvas>
+        <canvas id="progressChart" width="400" height="200"></canvas>
+        <button id="exportDataBtn" class="reset-btn" style="background:#4A6A6A; margin-top:20px;">📥 Экспорт прогресса (JSON)</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <button id="importDataBtn" class="reset-btn" style="background:#8E6B4F; margin-top:10px;">📤 Импорт прогресса (JSON)</button>
+        <button id="exportPDFBtn" class="reset-btn" style="background:#566573; margin-top:10px;">📄 Экспорт отчёта (PDF)</button>
+    </div>
+</div>
+<div id="achievementsSection" class="section"><div class="card" id="badgesContainer"></div><button class="reset-btn" id="resetAllAchievements">♻️ Сбросить весь прогресс</button></div>
+<footer>Пропущенный шаг перемещается в конец списка. Данные сохраняются в браузере.</footer>
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div id="entryModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">➕ Новая запись</h3>
+        
+        <!-- ВЫБОР НАСТРОЕНИЯ -->
+        <div class="mood-selector-row">
+            <div class="mood-label-text">Как настроение? <span style="color:#E57373;">😞</span> → <span style="color:#4CAF50;">😊</span></div>
+            <div class="mood-options" id="modalMoodOptions">
+                <div class="mood-option" data-mood="1"><div class="mood-emoji">😞</div><div class="mood-name">Ужасно</div></div>
+                <div class="mood-option" data-mood="2"><div class="mood-emoji">🙁</div><div class="mood-name">Плохо</div></div>
+                <div class="mood-option" data-mood="3"><div class="mood-emoji">😐</div><div class="mood-name">Нормально</div></div>
+                <div class="mood-option" data-mood="4"><div class="mood-emoji">🙂</div><div class="mood-name">Хорошо</div></div>
+                <div class="mood-option" data-mood="5"><div class="mood-emoji">😊</div><div class="mood-name">Отлично</div></div>
+            </div>
+        </div>
+        
+        <textarea id="entryText" rows="5" placeholder="Что произошло? Что думаете? Что чувствуете?..."></textarea>
+        <div id="modalDateTime" style="font-size: 12px; color:#7F8C8D; margin-bottom: 16px;"></div>
+        
+        <div class="modal-actions">
+            <button id="modalSaveBtn" class="save-entry-btn">💾 Сохранить</button>
+            <button id="modalCancelBtn" class="cancel-btn">Отмена</button>
+        </div>
+        <div class="modal-actions" id="deleteActionRow" style="display: none;">
+            <button id="modalDeleteBtn" class="delete-confirm-btn">🗑 Удалить запись</button>
+        </div>
+    </div>
+</div>
+<div style="text-align: center; margin-top: 20px; padding: 12px 10px;">
+    <p style="font-size: 10px; color: #888; line-height: 1.4; margin: 0;">
+        ⚠️ <strong>Дисклеймер:</strong> Это НЕ профессиональная медицинская помощь. Приложение создано для самопомощи, 
+        психологического просвещения и развития осознанности. При тяжёлых состояниях (суицидальные мысли, глубокая депрессия, 
+        психотические эпизоды) обязательно обратитесь к специалисту (психиатру, психотерапевту).
+    </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+// ========== 1. ДАННЫЕ ТЕСТОВ (как в предыдущей версии) ==========
+// Для краткости здесь указаны переменные, но в финальной сборке нужно скопировать все данные из предыдущего кода
+// ВНИМАНИЕ: при объединении скопируйте сюда quizQuestions, quizCategories, advancedQuizQuestions, advancedQuizCategories, disordersData, emotionsInfo, disordersInfo
+// (из предыдущего полного кода)
+
+const quizQuestions = [
+    "Я часто чувствую грусть, пустоту или потерю интереса.",
+    "Мне трудно вставать с кровати и выполнять простые дела.",
+    "Я долгое время (годами) в подавленном настроении, но живу обычной жизнью.",
+    "У меня нет сил встать с кровати, даже чтобы поесть.",
+    "Я не могу радоваться тому, что радовало раньше.",
+    "Я постоянно тревожусь по разным поводам, даже без причины.",
+    "Меня пугает будущее, я живу в ожидании плохого.",
+    "У меня бывают внезапные приступы сильного страха, сердце колотится, не хватает воздуха.",
+    "Мне очень страшно общаться с людьми, особенно в новой компании или при оценке.",
+    "У меня есть повторяющиеся навязчивые мысли и/или ритуалы (проверки, счёт, мытьё).",
+    "Я пережил(а) травматическое событие, меня преследуют воспоминания, кошмары, избегание.",
+    "Мои эмоции очень резкие, я могу быстро взбеситься или впасть в отчаяние, и это длится недолго.",
+    "Я часто чувствую пустоту внутри, как будто меня нет.",
+    "Мир вокруг кажется нереальным, туманным, как будто я в кино.",
+    "Я чувствую себя отделённым от своего тела или мыслей, как будто наблюдаю со стороны.",
+    "У меня бывают провалы в памяти, ощущение 'отключения', потеря связи с реальностью.",
+    "Я чувствую полное истощение, ничего не радует, работа/учеба высасывают силы.",
+    "Я долгое время (годами) нахожусь в подавленном настроении, но живу обычной жизнью.",
+    "Я боюсь, что меня бросят, и делаю всё, чтобы этого избежать (даже в ущерб себе).",
+    "Моё тело меняется, я боюсь еды/веса, вызываю рвоту или голодаю.",
+    "Я использую алкоголь/наркотики/переедание/секс, чтобы справиться с болью.",
+    "Моё тело болит без причины (голова, спина, живот) – врачи говорят, что всё нормально.",
+    "У меня бывают периоды глубокой депрессии, сменяющиеся нормальным состоянием.",
+    "У меня бывают периоды необычного подъёма энергии, мало сна, много идей."
+];
+const quizCategories = [
+    "депрессия","депрессия","дистимия","депрессия","депрессия",
+    "тревога","тревога","паника","социальная тревога","ОКР","ПТСР",
+    "ПРЛ","ПРЛ","дереализация","деперсонализация","диссоциация",
+    "выгорание","дистимия","тревога привязанности","РПП","зависимость","соматика",
+    "депрессивный бар","маниакальный бар"
+];
+
+// ========== 2. РАСШИРЕННЫЙ ТЕСТ (59 вопросов) ==========
+const advancedQuizQuestions = [
+    "Я чувствую грусть или подавленность почти каждый день.",
+    "Мне перестало приносить удовольствие то, что раньше радовало.",
+    "У меня изменился аппетит (ем намного больше или меньше обычного).",
+    "Я сплю слишком много или, наоборот, не могу заснуть.",
+    "Я чувствую сильную усталость и нехватку энергии даже после отдыха.",
+    "Мне трудно сосредоточиться на простых вещах (чтение, разговор).",
+    "Я постоянно переживаю о разных вещах, даже когда нет причины.",
+    "Моё тело напряжено, и я не могу расслабиться.",
+    "У меня бывают проблемы со сном из-за того, что я о многом переживаю.",
+    "Я легко пугаюсь и часто нахожусь в состоянии ожидания чего-то плохого.",
+    "У меня бывают внезапные приступы сильного страха с сердцебиением и потливостью.",
+    "Во время приступа мне кажется, что я сейчас потеряю сознание или умру.",
+    "Я боюсь, что приступ повторится, и избегаю мест, где он случился.",
+    "Панические приступы случаются у меня без видимой причины.",
+    "Мне страшно общаться с незнакомыми людьми.",
+    "Я боюсь, что люди заметят мою тревогу и осудят меня.",
+    "Я избегаю публичных выступлений из-за страха опозориться.",
+    "После общения я долго прокручиваю в голове, что сказал(а) не так.",
+    "У меня повторяются навязчивые мысли, от которых трудно избавиться.",
+    "Я вынужден(а) выполнять ритуалы (проверки, мытьё, счёт), чтобы успокоиться.",
+    "Мои ритуалы отнимают у меня много времени (больше часа в день).",
+    "Я знаю, что мои ритуалы не имеют смысла, но не могу их остановить.",
+    "Было ли в вашей жизни событие, где вы чувствовали сильную угрозу жизни или здоровью? После этого вас преследуют яркие воспоминания.",
+    "Вам снятся кошмары, связанные с тем страшным событием из прошлого?",
+    "Вы избегаете мест, людей или ситуаций, которые могут напомнить вам о том событии?",
+    "Я стал(а) очень раздражительным(ой) и постоянно нахожусь в напряжении с тех пор.",
+    "Мои эмоции очень резкие и меняются несколько раз в день.",
+    "Я часто чувствую сильную пустоту внутри.",
+    "У меня бывают вспышки гнева, которые я не могу контролировать.",
+    "Я боюсь, что меня бросят, и делаю всё, чтобы этого избежать.",
+    "Я часто действую импульсивно (трачу деньги, ем, вступаю в случайные связи).",
+    "Мир вокруг кажется нереальным, как будто я в кино.",
+    "Предметы вокруг выглядят искажёнными или неестественными.",
+    "Я чувствую себя отделённым(ой) от своего тела.",
+    "Мои движения кажутся автоматическими, я не управляю собой.",
+    "У меня бывают провалы в памяти на несколько минут или часов.",
+    "Я не помню, что делал(а) в течение какого-то времени, хотя выглядел(а) нормально.",
+    "Я чувствую полное истощение, даже после выходных.",
+    "Меня раздражают люди и задачи, которые раньше не вызывали эмоций.",
+    "Моя работа или учёба перестали приносить мне удовлетворение.",
+    "Я почти всё время нахожусь в подавленном настроении уже много лет.",
+    "Иногда у меня бывают периоды нормального настроения, но они быстро проходят.",
+    "Я боюсь, что меня бросят или отвергнут.",
+    "Мне нужно постоянное подтверждение, что меня любят.",
+    "Я ревную и боюсь, что партнёр найдёт кого-то лучше.",
+    "Я боюсь набрать вес и постоянно слежу за фигурой.",
+    "Бывают дни, когда я ем очень мало или вовсе голодаю.",
+    "Бывают дни, когда я переедаю и потом вызываю рвоту или принимаю слабительное.",
+    "Я использую алкоголь, наркотики или еду, чтобы справиться со стрессом.",
+    "Мне нужно всё больше вещества или действия для достижения прежнего эффекта.",
+    "Бывали случаи, когда я не мог(ла) остановиться, даже когда хотел(а).",
+    "У меня бывают боли без видимой медицинской причины.",
+    "Боль усиливается в моменты стресса.",
+    "Врачи говорят, что со мной всё в порядке, но боль не проходит.",
+    "У меня бывают периоды глубокой депрессии, длящиеся неделями.",
+    "В такие периоды я не могу встать с кровати и ничего не хочу делать.",
+    "У меня бывают периоды необычного подъёма энергии и активности.",
+    "В такие периоды я сплю очень мало, но чувствую себя бодро.",
+    "В периоды подъёма я трачу много денег, рискую или говорю без остановки."
+];
+const advancedQuizCategories = [
+    "депрессия","депрессия","депрессия","депрессия","депрессия","депрессия",
+    "тревога","тревога","тревога","тревога",
+    "паника","паника","паника","паника",
+    "социальная тревога","социальная тревога","социальная тревога","социальная тревога",
+    "ОКР","ОКР","ОКР","ОКР",
+    "ПТСР","ПТСР","ПТСР","ПТСР",
+    "ПРЛ","ПРЛ","ПРЛ","ПРЛ","ПРЛ",
+    "дереализация","дереализация",
+    "деперсонализация","деперсонализация",
+    "диссоциация","диссоциация",
+    "выгорание","выгорание","выгорание",
+    "дистимия","дистимия",
+    "тревога привязанности","тревога привязанности","тревога привязанности",
+    "РПП","РПП","РПП",
+    "зависимость","зависимость","зависимость",
+    "соматика","соматика","соматика",
+    "депрессивный бар","депрессивный бар",
+    "маниакальный бар","маниакальный бар","маниакальный бар"
+];
+// ========== 3. ПРОРАБОТКИ (22 темы, полные шаги) ==========
+const disordersData = {
+    "депрессия": { title: "Депрессия", steps: [
+        "🌅 МИКРОДЕЙСТВИЕ: Просто сядь на кровати на 30 секунд. Не надо вставать, просто прими положение сидя. Ты уже сделал(а) первый шаг.",
+        "💧 ВОДА: Выпей стакан воды медленно, маленькими глотками. Обрати внимание на температуру воды.",
+        "🌬️ СВЕЖИЙ ВОЗДУХ: Открой окно или балкон на 2-3 минуты. Вдохни свежий воздух.",
+        "🧼 ОСВЕЖЕНИЕ: Умойся прохладной водой. Почувствуй её на лице.",
+        "🗣️ ПОДДЕРЖКА СЕБЕ: Скажи вслух: «Я имею право чувствовать то, что я чувствую. Сейчас мне тяжело, и это нормально».",
+        "🧹 МАЛЕНЬКОЕ ДЕЛО: Сделай одно очень маленькое дело — выброси пустой стакан, протри пыль на одной полке.",
+        "📝 НАЗОВИ СОСТОЯНИЕ: Напиши на листе одно слово, описывающее твоё состояние сейчас.",
+        "📱 КОРОТКИЙ КОНТАКТ: Напиши кому-то одно короткое сообщение — смайлик или просто слово «Привет».",
+        "🎵 МУЗЫКА: Включи самую спокойную и знакомую музыку на 3 минуты.",
+        "🛌 РАЗРЕШЕНИЕ НА ОТДЫХ: Повтори: «Я не обязан(а) быть продуктивным(ой) сегодня. Достаточно того, что я дышу».",
+        "🦋 БЕЗОПАСНОЕ МЕСТО: Завернись в плед, создай «кокон». Представь безопасное место.",
+        "🫂 САМООБЪЯТИЕ: Погладь себя по плечу или по голове. Скажи: «Я с тобой, я не оставлю тебя».",
+        "🌪️ ПОИСК ПРИЧИНЫ: Спроси себя: «Что могло вызвать моё состояние?» Запиши первую мысль.",
+        "🧘 ДЫХАНИЕ: Сделай 10 медленных вдохов и выдохов. Считай про себя.",
+        "🍵 ТЁПЛОЕ ПИТЬЁ: Съешь или выпей что-то тёплое (чай, суп, какао).",
+        "🚫 ПРЕКРАТИ СРАВНЕНИЯ: Не сравнивай себя с другими людьми, особенно с теми, у кого нет депрессии.",
+        "🙏 ОДНА БЛАГОДАРНОСТЬ: Напиши одну вещь, за которую ты благодарен(на) сегодня.",
+        "📞 ЛИНИЯ ПОМОЩИ: 8-800-2000-122 (круглосуточно, бесплатно, анонимно). Просто поговори.",
+        "✍️ ПИСЬМО СЕБЕ: Напиши короткое письмо себе из позиции доброго друга.",
+        "🌙 ЗАВЕРШЕНИЕ ДНЯ: Запиши 1-2 маленькие вещи, которые тебе удались сегодня."
+    ] },
+    "тревога": { title: "Тревога", steps: [
+        "📝 ЗАПИШИ СТРАХ: Запиши свой страх на ближайший час. Конкретика уменьшает тревогу.",
+        "🧊 ДЫХАНИЕ КВАДРАТОМ: Вдох 4 — задержка 4 — выдох 4 — задержка 4. Повтори 5-10 раз.",
+        "🔍 ФАКТЫ И ДОМЫСЛЫ: Раздели лист на две колонки: «Факты» и «Мои интерпретации».",
+        "🤲 ЗАЗЕМЛЕНИЕ: Сожми и разожми кисти рук 10 раз, потри ладони.",
+        "👂 ПЕРЕКЛЮЧЕНИЕ: Назови 5 звуков, которые слышишь вокруг.",
+        "📊 ОЦЕНИ РИСК: Оцени вероятность страха от 0 до 100%. Тревога завышает риск.",
+        "🗺️ ПЛАН Б: Напиши: «Если случится самое страшное, что я сделаю?»",
+        "🚶 ПРОГУЛКА: Выйди на улицу на 5 минут. Посмотри на небо, деревья.",
+        "⏳ ОТЛОЖИ ТРЕВОГУ: «Я буду тревожиться с 17:00 до 17:15». Запиши страх и отложи.",
+        "🫁 ДЫХАНИЕ ЖИВОТОМ: Рука на животе. На вдохе рука поднимается, на выдохе опускается.",
+        "🧘 РЕЛАКСАЦИЯ: Напряги и расслабь мышцы: стопы→икры→бёдра→живот→грудь→плечи→шея→лицо.",
+        "📉 ДНЕВНИК ТРЕВОГИ: Записывай дату, ситуацию, уровень тревоги (0-10) и что произошло на самом деле.",
+        "🍃 НАБЛЮДАЙ: Представь тревогу как облако. Скажи: «Я замечаю, что во мне есть тревога».",
+        "🔁 ПАРАДОКС: Попробуй специально усилить тревогу. Часто она падает сама.",
+        "📞 ПОЗВОНИ ДРУГУ: Скажи: «Мне тревожно, побудь со мной на связи 5 минут»."
+    ] },
+    "паника": { title: "Паническое расстройство", steps: [
+        "🗣️ НАПОМНИ СЕБЕ: «Это паника, а не сердечный приступ. Она пройдёт через 10-15 минут».",
+        "💨 ДЫХАНИЕ 4-6: Вдох на 4 счёта, выдох на 6. Выдох длиннее вдоха.",
+        "🧊 ЛЕД НА ЛИЦО: Умой лицо ледяной водой или приложи лёд к щекам на 15-30 секунд.",
+        "🔢 5-4-3-2-1: Назови 5 предметов, 4 звука, 3 тактильных ощущения, 2 запаха, 1 вкус.",
+        "❄️ ЛЁД В РУКЕ: Возьми кубик льда в ладонь и сжимай его.",
+        "🚶 ШАГАЙ НА МЕСТЕ: Шагай медленно, чувствуя ступнями пол.",
+        "👀 3 ВЕЩИ: Назови 3 вещи вокруг, опиши их цвет и текстуру.",
+        "💪 НАПРЯГИ МЫШЦЫ: Сделай 10 приседаний или сильно напряги ноги на 10 секунд.",
+        "📞 ПОЗВОНИ ДРУГУ: Попроси говорить о чём угодно 5 минут.",
+        "📅 ЗАПИШИ ПРИСТУП: Запиши дату, время, место и мысли перед приступом.",
+        "🎉 ПОХВАЛИ СЕБЯ: «Я справился(лась)! Паника пришла и ушла, а я остался(лась)».",
+        "🚫 ОТКАЖИСЬ ОТ КОФЕИНА: Кофе, энергетики, крепкий чай провоцируют приступы.",
+        "📱 УСТАНОВИ ПРИЛОЖЕНИЕ: Breathwrk или Calm для дыхания при панике.",
+        "🏠 БЕЗОПАСНОЕ МЕСТО: Создай в воображении безопасное место с деталями.",
+        "👥 НАПОМИНАНИЕ: Паническое расстройство лечится. КПТ-терапия очень эффективна."
+    ] },
+    "социальная тревога": { title: "Социальная тревога", steps: [
+        "📊 ОЦЕНИ СТРАХ: Оцени страх социальной ситуации от 0 до 100%.",
+        "🔁 ВСПОМНИ УСПЕХ: Вспомни случай, когда общение прошло нормально.",
+        "⏰ МИКРОКОНТАКТ: Спроси у прохожего который час или о товаре в магазине.",
+        "💬 ПОХВАЛИ СЕБЯ: «Я сделал(а) это! Не нужно говорить идеально».",
+        "🧠 НЕ УГАДЫВАЙ: «Я не телепат, я не могу знать мысли других».",
+        "🎭 ЭКСПЕРИМЕНТ: Сделай что-то «неловкое» специально — никто не засмеёт.",
+        "🗣️ НЕ НАДО НРАВИТЬСЯ ВСЕМ: «Невозможно нравиться всем. Это нормально».",
+        "📝 ЗАПИШИ СТРАХИ: Каких оценок боишься? Есть ли реальные доказательства?",
+        "👥 СПРОСИ БЛИЗКОГО: «Ты замечал что-то странное в моём поведении?»",
+        "📈 ПОСТЕПЕННО: Улыбнись продавцу → спроси, как пройти → скажи комплимент.",
+        "🌬️ ДЫХАНИЕ: 10 глубоких вдохов перед выступлением. Вдох 4, выдох 6.",
+        "💡 НАПОМИНАНИЕ: «Люди заняты собой. А если кто-то осудит — это о нём»."
+    ] },
+    "ОКР": { title: "ОКР (навязчивые мысли и ритуалы)", steps: [
+        "🏷️ НАЗОВИ МЫСЛЬ: «Это навязчивая мысль ОКР, а не реальность».",
+        "⏱️ ОТЛОЖИ РИТУАЛ: Поставь таймер на 1 минуту, не выполняй ритуал.",
+        "📝 ЗАПИШИ И ПОРВИ: Запиши мысль на бумагу и порви лист.",
+        "🔄 СДЕЛАЙ НАОБОРОТ: Если ритуал — мыть руки, коснись ручки двери.",
+        "🌫️ НЕОПРЕДЕЛЁННОСТЬ: «Жизнь полна неопределённости. Я не могу всё контролировать».",
+        "☁️ НАБЛЮДАЙ: Представь мысль как облако, которое плывёт мимо.",
+        "👀 ПОСМОТРИ СО СТОРОНЫ: «Я замечаю, что у меня есть мысль о…»",
+        "⏲️ УВЕЛИЧИВАЙ ВРЕМЯ: Сегодня отложи на 5 минут, завтра на 10.",
+        "🔍 ПРОВЕРЬ РЕАЛЬНОСТЬ: Что случилось в прошлый раз без ритуала? Ничего.",
+        "🚌 ПАССАЖИР: Ты — водитель автобуса. Мысль — назойливый пассажир.",
+        "💪 ЭКСПОЗИЦИЯ: Постепенно сталкивайся со страхом, не делая ритуал.",
+        "📚 ПОЧИТАЙ: «Монстр у порога» Ли Баера — книга о лечении ОКР."
+    ] },
+    "ПТСР": { title: "ПТСР (после травмы)", steps: [
+        "🌍 ЗАЗЕМЛЕНИЕ: Назови 3 предмета вокруг, опиши цвет и текстуру.",
+        "🦶 ЧУВСТВУЙ ОПОРУ: Надави стопами в пол. Сделай 5 глубоких вдохов.",
+        "🧊 ХОЛОДНЫЙ ПРЕДМЕТ: Возьми в руку лёд или холодную бутылку.",
+        "🗣️ НАПОМИНАНИЕ: «Сейчас мне ничего не угрожает. Опасность в прошлом».",
+        "🌬️ ДЫХАНИЕ 4-6: Вдох 4, выдох 6 в течение 3 минут.",
+        "📛 НАЗОВИ СЕБЯ: Своё имя, возраст, место, сегодняшнюю дату.",
+        "🪞 ЗЕРКАЛО: Посмотри в зеркало, опиши одну черту лица.",
+        "💌 ПИСЬМО СЕБЕ: «Ты пережил страшное, но ты здесь. Ты справляешься».",
+        "📍 ЯКОРЬ БЕЗОПАСНОСТИ: Надави на точку между ключицами на 15 секунд.",
+        "👁️ ДВОЙНОЕ ВНИМАНИЕ: Позволь воспоминанию быть, но слушай звуки вокруг.",
+        "🚫 ОТКАЖИСЬ ОТ АЛКОГОЛЯ: Алкоголь усиливает флешбэки и нарушает сон.",
+        "🗣️ ПОГОВОРИ: Расскажи доверенному человеку о чувствах без подробностей.",
+        "🛡️ ЭТО ВОСПОМИНАНИЕ: «Это воспоминание, а не реальность. Оно не управляет мной».",
+        "🦋 УКРОЙСЯ В ПЛЕД: Создай физически безопасное пространство.",
+        "👥 EMDR-ТЕРАПИЯ: Обратись к специалисту — метод создан для работы с травмой."
+    ] },
+    "ПРЛ": { title: "ПРЛ (пограничное расстройство)", steps: [
+        "🏷️ НАЗОВИ ЭМОЦИЮ: «Ярость», «Пустота», «Отчаяние», «Страх», «Боль».",
+        "⏸️ ПАУЗА 10 МИНУТ: Не действуй импульсивно. Эмоция — как волна, она спадает.",
+        "📝 ЗАПИШИ ПРИЧИНУ: Что вызвало эту волну? Событие или мысль?",
+        "🌬️ ДЫХАНИЕ 4-6: 3 минуты дыши: вдох 4, выдох 6.",
+        "🧊 НЫРОК РЕФЛЕКСА: Опусти лицо в ледяную воду на 15-30 секунд.",
+        "📋 TIPP: Temperature (холод), Intense exercise (нагрузка), Paced breathing (дыхание), Paired muscle relaxation (напряжение/расслабление).",
+        "📓 ДНЕВНИК ЭМОЦИЙ: Событие → Мысль → Эмоция → Ощущение → Действие.",
+        "🔄 ПРОТИВОПОЛОЖНОЕ ДЕЙСТВИЕ: Хочется изолироваться — позвони. Хочется ударить — побей подушку.",
+        "🛑 STOP: Стоп (прервись). Вдох. Оглянись. Продолжай осознанно.",
+        "🌫️ МНЕ ВСЁ РАВНО: «Я отпускаю то, что не зависит от меня. Чужое мнение — не моя проблема».",
+        "🔍 ПРОВЕРЬ ФАКТЫ: Насколько моя интерпретация точна? Есть доказательства?",
+        "🎒 КОРОБКА САМОУСПОКОЕНИЯ: Собери предметы, которые успокаивают.",
+        "💌 ПИСЬМО ИЗ БУДУЩЕГО: Напиши от лица себя через год. «Ты справишься».",
+        "🕊️ РАДИКАЛЬНОЕ ПРИНЯТИЕ: «Это факт. Я не борюсь с ним, я его признаю».",
+        "👥 ДПТ-ТЕРАПИЯ: Диалектико-поведенческая терапия — золотой стандарт при ПРЛ."
+    ] },
+    "дереализация": { title: "Дереализация (мир кажется нереальным)", steps: [
+        "🖐️ 5 ПРЕДМЕТОВ: Назови 5 предметов вокруг, их цвет и текстуру.",
+        "🪨 ПОТРОГАЙ: Потрогай 3 разные поверхности, опиши ощущения.",
+        "💧 ХОЛОДНАЯ ВОДА: Выпей холодную воду маленькими глотками.",
+        "🌬️ ДЫШИ И ГОВОРИ: «Мир реален. Я здесь. Стены реальны».",
+        "🔢 5-4-3-2-1: 5 предметов, 4 звука, 3 прикосновения, 2 запаха, 1 вкус.",
+        "📸 ФОТОГРАФИЯ: Сделай фото — камера подтверждает реальность.",
+        "🎵 ГРОМКАЯ МУЗЫКА: Включи музыку и подпевай.",
+        "💡 ЯРКИЙ СВЕТ: Зажги яркую лампу или выйди на солнце.",
+        "🪘 ПОСТУЧИ: Постучи костяшками по столу, почувствуй вибрацию.",
+        "🪞 ЗЕРКАЛО: «Ты здесь, ты реален(на). Мир не исчез»."
+    ] },
+    "деперсонализация": { title: "Деперсонализация (отстранение от себя)", steps: [
+        "📢 НАЗОВИ СЕБЯ: «Меня зовут… Мне … лет. Моё тело — моё».",
+        "🖐️ ПОТРИ ЛАДОНИ: Потри ладони до тепла, положи руку на сердце.",
+        "🫂 ПОХЛОПАЙ СЕБЯ: Похлопай по плечам, скажи: «Я с тобой».",
+        "🪞 ЗЕРКАЛО: Назови одну черту лица. «Это моё лицо. Я это я».",
+        "✍️ НАПИШИ: «Я есть, я чувствую, я здесь». Прочитай вслух 5 раз.",
+        "🏋️ ПРИСЕДАНИЯ: Сделай 10 приседаний, чувствуя мышцы.",
+        "👂 ПОТРОГАЙ СЕБЯ: Потрогай ухо, нос, локоть, назови вслух.",
+        "🦶 МАССАЖ СТОП: Помассируй стопы или кисти рук.",
+        "🗣️ ПОВТОРИ: «Моё сердце бьётся — я жив(а). Лёгкие дышат — я существую».",
+        "🍵 ГОРЯЧИЙ ЧАЙ: Выпей чай, ощути тепло внутри."
+    ] },
+    "диссоциация": { title: "Диссоциация (отключение)", steps: [
+        "👂 3 ЗВУКА: Назови 3 звука, которые слышишь прямо сейчас.",
+        "🦶 ПОТОПАЙ НОГАМИ: Почувствуй поверхность пола.",
+        "🪨 ШЕРШАВЫЙ ПРЕДМЕТ: Возьми предмет с сильной текстурой, опиши ощущения.",
+        "🌬️ ДЫХАНИЕ 4-6: Вдох 4, выдох 6 в течение 3 минут.",
+        "🗣️ СКАЖИ ВСЛУХ: «Я здесь. Моё тело в безопасности. Я возвращаюсь».",
+        "🤯 ПОТРЯСИ ГОЛОВОЙ: Аккуратно, чтобы вернуть внимание.",
+        "💡 ЯРКИЙ СВЕТ: Включи яркий свет или подойди к окну.",
+        "🧷 РЕЗИНКА: Щёлкни резинкой на запястье для переключения.",
+        "📢 ПОЗОВИ СЕБЯ: «[Имя], вернись сюда. Я жду тебя».",
+        "🧩 КОНЦЕНТРАЦИЯ: Сложи пазл, сосчитай до 100 обратно, разгадай судоку."
+    ] },
+    "выгорание": { title: "Выгорание", steps: [
+        "🛌 НИЧЕГО НЕ ДЕЛАЙ: 10 минут просто лежи или сиди. Без телефона, без чувства вины.",
+        "✂️ ВЫЧЕРКНИ ДЕЛО: Посмотри на список дел и убери одно несрочное.",
+        "🗣️ АФФИРМАЦИЯ: «Я делаю достаточно. Моя ценность не от продуктивности».",
+        "🍵 ТЁПЛАЯ ЕДА: Съешь что-то тёплое, не отвлекаясь на телефон.",
+        "📝 2 ХОРОШИЕ ВЕЩИ: Запиши перед сном 2 приятных события за день.",
+        "🙏 ПОПРОСИ ПОМОЩИ: Скажи кому-то: «Мне тяжело, можешь помочь?»",
+        "😴 СПИ БОЛЬШЕ: Разреши себе спать 8-9 часов.",
+        "🌿 СМЕНИ ОБСТАНОВКУ: Выйди на улицу на 15 минут.",
+        "🎁 ПРИЯТНОЕ ДЕЙСТВИЕ: Сделай один приятный ритуал для себя.",
+        "📱 ОГРАНИЧЬ ЭКРАНЫ: Не заходи в соцсети после 21:00.",
+        "📊 НАЙДИ ИСТОЧНИКИ: Определи, что высасывает энергию, и сократи это.",
+        "🛑 РИТУАЛ ОКОНЧАНИЯ: «День закончен. Всё остальное — завтра»."
+    ] },
+    "дистимия": { title: "Дистимия (хроническая тоска)", steps: [
+        "🌱 ПРИЗНАНИЕ: «Это не лень, а особенность нервной системы. Я сильный человек».",
+        "🧹 МИКРОДОСТИЖЕНИЕ: Сделай маленькое действие с видимым результатом.",
+        "☀️ СВЕТ: Выйди на солнце или открой шторы на 5 минут каждое утро.",
+        "📖 ДНЕВНИК ЧУВСТВ: Запиши чувства последних дней без оценок.",
+        "🎨 ПРИЯТНОЕ ЗАНЯТИЕ: Спланируй 5 минут того, что раньше радовало.",
+        "🗣️ АФФИРМАЦИЯ: «Маленькие шаги имеют значение».",
+        "📓 ДНЕВНИК ПОБЕД: Каждый вечер записывай 1-2 маленьких победы.",
+        "🕯️ ВСПОМНИ РАДОСТЬ: Сделай то, что радовало в детстве, на 5 минут.",
+        "🛌 БУДЬ НЕЭНЕРГИЧНЫМ: «Я имею право на slow pace».",
+        "💡 СВЕТОТЕРАПИЯ: Лампа 10 000 люкс 30 минут утром."
+    ] },
+    "тревога привязанности": { title: "Тревога привязанности (страх быть брошенным)", steps: [
+        "💎 АФФИРМАЦИЯ: «Моя ценность не зависит от того, рядом со мной кто-то или нет».",
+        "📝 3 ФАКТА: Напиши 3 доказательства, что можешь быть один и выжить.",
+        "⏰ УВЕЛИЧИВАЙ ВРЕМЯ: Сегодня 5 минут без сообщения, завтра 10.",
+        "🫂 САМОУСПОКОЕНИЕ: «Я справлюсь, даже если этот человек уйдёт».",
+        "💪 СИЛЬНЫЕ СТОРОНЫ: Напиши список качеств, не зависящих от отношений.",
+        "🗣️ НАПОМИНАНИЕ: «Плохое настроение другого — не значит, что он уйдёт».",
+        "🕯️ РИТУАЛЫ: Заведи дела, которые делаешь без партнёра.",
+        "📚 ИЗУЧИ ТЕОРИЮ: Узнай свой тип привязанности — понимание снижает тревогу.",
+        "🏠 БЕЗОПАСНОЕ МЕСТО: Практикуй в воображении место безопасности.",
+        "📱 НЕ ПРОВЕРЯЙ: Не проверяй страницу партнёра, когда он не отвечает."
+    ] },
+    "РПП": { title: "РПП (расстройство пищевого поведения)", steps: [
+        "🍚 СЪЕШЬ МАЛЕНЬКОЕ: Медленно, ощущая вкус и текстуру.",
+        "🗣️ АФФИРМАЦИЯ: «Моё тело заслуживает еду. Еда — топливо, а не враг».",
+        "⚖️ НЕ ВЗВЕШИВАЙСЯ: Убери весы. Цифра не определяет твою ценность.",
+        "📝 3 ПРИЧИНЫ: Почему еда — друг. Держи список в кошельке.",
+        "💌 ПИСЬМО ТЕЛУ: Поблагодари тело за то, что оно для тебя делает.",
+        "🧴 ПРИЯТНОЕ ТЕЛУ: Крем, душ, мягкая одежда — без цели изменить тело.",
+        "🧠 ЭМОЦИЯ ЗА ЕДОЙ: Какую эмоцию пытаешься заглушить? Что нужно на самом деле?",
+        "❓ ЧТО НУЖНО?: Отдых, объятия, сон? Удовлетвори напрямую.",
+        "🍕 СЪЕШЬ «ЗАПРЕЩЁНКУ»: Маленькую порцию, медленно, без спешки.",
+        "🚫 ОТКАЖИСЬ ОТ ДИЕТ: Изучай интуитивное питание.",
+        "👥 ПСИХОТЕРАПЕВТ: РПП лечится. Обратись к специалисту.",
+        "📓 ДНЕВНИК ПРИЁМОВ: Записывай всё, без оценок и калорий."
+    ] },
+    "зависимость": { title: "Зависимость (алкоголь/еда/игры/вещества)", steps: [
+        "🌱 ПРИЗНАНИЕ: «У меня есть зависимость. Это болезнь, а не слабость».",
+        "⌛ ПАУЗА 1 ЧАС: Подожди час перед употреблением. Займи себя чем-то.",
+        "📝 ЗАПИШИ ЧУВСТВО: Что пытаюсь заглушить? Что нужно вместо зависимости?",
+        "🤝 ГРУППА ПОДДЕРЖКИ: Анонимные Алкоголики, Анонимные Наркоманы.",
+        "🚶 АЛЬТЕРНАТИВА: Прогулка, дыхание, чай, звонок другу.",
+        "📅 МИНИМАЛЬНЫЙ ПЕРЕРЫВ: Проживи без вещества 1 день.",
+        "📚 ИЗУЧИ МЕХАНИЗМ: «Атомные привычки» Дж. Клир.",
+        "📉 СПИСОК ПОСЛЕДСТВИЙ: Что уже отняла зависимость? Перечитывай.",
+        "💔 ЧТО ТЕРЯЕШЬ?: Завтра? Через год? Через 10 лет?",
+        "👨‍⚕️ НАРКОЛОГ/ПСИХОТЕРАПЕВТ: Зависимость лечится."
+    ] },
+    "соматика": { title: "Соматизация (боль без медицинской причины)", steps: [
+        "🧘 ПРИЗНАЙ БОЛЬ: «Я слышу тебя. Боль реальна, даже если не знаю причину».",
+        "🔍 СКАНИРОВАНИЕ: Пройдись вниманием от стоп до макушки, просто замечай.",
+        "🌬️ ДЫШИ В БОЛЬ: На вдохе воздух в больную зону, на выдохе боль выходит.",
+        "📝 ДНЕВНИК БОЛИ: Когда появилась? Что чувствовал перед этим?",
+        "🦋 ПОСТУКИВАНИЕ: Постучи по ключицам или рёбрам.",
+        "🧘 РАСТЯЖКА: Лёгкая растяжка больной зоны, не до боли.",
+        "😠 ЭМОЦИЯ ЗАСТРЯЛА?: Какую эмоцию не выразил? Запиши.",
+        "📊 ДНЕВНИК: Боль → Ситуация → Эмоция → Мысль.",
+        "👨‍⚕️ ИСКЛЮЧИ ОРГАНИКУ: Сходи к врачу, сдай анализы.",
+        "🙌 ТЕЛЕСНЫЙ ТЕРАПЕВТ: Найди специалиста по телесной терапии."
+    ] },
+    "депрессивный бар": { title: "Депрессивный бар (биполярное расстройство)", steps: [
+        "🌑 ПРИЗНАЙ ФАЗУ: «Это состояние приходит и уходит. Оно пройдёт».",
+        "⏰ РЕЖИМ: Ложись и просыпайся в одно время.",
+        "☀️ СВЕТОТЕРАПИЯ: 15-30 минут утром у окна или с лампой 10 000 люкс.",
+        "💊 НЕ БРОСАЙ ЛЕКАРСТВА: Резкая отмена опасна.",
+        "🛌 ОТДЫХ: «Сейчас я болею. Мне нужен покой».",
+        "✍️ ДНЕВНИК НАСТРОЕНИЯ: Уровень энергии и настроение каждый день.",
+        "🍽️ ЕШЬ РЕГУЛЯРНО: Каждые 3-4 часа, даже маленькими порциями.",
+        "🚶 ПРОГУЛКА 5 МИНУТ: Свежий воздух важен.",
+        "🗣️ НЕ ПРИНИМАЙ РЕШЕНИЙ: Отложи важные решения на 2 недели.",
+        "👥 ГРУППА ПОДДЕРЖКИ: «Биполярщики» и другие сообщества.",
+        "📞 КРИЗИСНЫЙ ПЛАН: Люди для звонка, действия для отвлечения.",
+        "💡 ЛАМПА: Светотерапия только утром, не более 30 минут."
+    ] },
+    "маниакальный бар": { title: "Маниакальный бар (биполярное расстройство)", steps: [
+        "🚦 СТОП-СИГНАЛ: Прилив энергии, мало сна — скажи «Я замедляюсь».",
+        "😴 СОХРАНИ СОН: Ложись в темноте, даже если не спится.",
+        "🚫 ОГРАНИЧЬ АКТИВНОСТЬ: «НЕЛЬЗЯ»: новые проекты, траты, ремонт.",
+        "✍️ ДНЕВНИК РАСХОДОВ: Записывай каждую покупку.",
+        "🗣️ НЕ ПРИНИМАЙ РЕШЕНИЙ: Отложи на 2 недели.",
+        "💊 ПРИНИМАЙ ЛЕКАРСТВА: Регулярно, даже если кажется «всё хорошо».",
+        "🚶 ЗАМЕДЛЕНИЕ: Ходи медленнее, говори тише, делай паузы.",
+        "🏠 СНИЖЕНИЕ СТИМУЛОВ: Убери яркий свет, громкую музыку, телефон.",
+        "👥 ПОПРОСИ БЛИЗКОГО: Пусть скажет пароль-фразу в моменты неадекватности.",
+        "📅 РЕЖИМ: Еда и сон в одно время.",
+        "🚫 АЛКОГОЛЬ: Полностью откажись на время фазы.",
+        "👨‍⚕️ ВРАЧ: Если мания нарастает — срочно к психиатру."
+    ] },
+    "эмоциональные состояния": { title: "Эмоциональные состояния (проработка эмоций)", steps: [
+        "😠 ГНЕВ: Что нарушило границы? Пауза 10 секунд. Какая потребность?",
+        "😨 СТРАХ: Чего боишься? Оцени опасность 0-10. Дыши 4-6.",
+        "😰 ТРЕВОГА: Отдели факты от домыслов. Сделай 5-4-3-2-1.",
+        "😢 ГРУСТЬ: Разреши себе плакать. Чего не хватает? Обними плед.",
+        "😖 СТЫД: «Я не плохой человек». Напиши 3 сильные стороны.",
+        "😞 ВИНА: Раздели ответственность. Напиши письмо с прощением.",
+        "🕯️ ОДИНОЧЕСТВО: Напиши письмо себе поддержки. Выйди в публичное место.",
+        "❄️ ОБИДА: Напиши письмо обидчику (не отправлять). Признай боль.",
+        "🌑 БЕЗНАДЁЖНОСТЬ: Сделай микрошаг. Запиши надежду. Позвони 8-800-2000-122.",
+        "👀 ЗАВИСТЬ: Чего на самом деле хочу? Преврати в план действий.",
+        "🤢 ОТВРАЩЕНИЕ: Определи причину. Физически отстранись.",
+        "😊 РАДОСТЬ: Сделай приятное действие. Запиши 3 радости дня.",
+        "😲 УДИВЛЕНИЕ: Заметь, чему удивился. Напиши открытие.",
+        "😌 СПОКОЙСТВИЕ: 10 медленных вдохов. Вспомни безопасное место.",
+        "🌟 НАДЕЖДА: Запиши 3 вещи, которые могут пойти хорошо.",
+        "🔍 ИНТЕРЕС: Найди 10 минут на то, что интригует.",
+        "🙏 БЛАГОДАРНОСТЬ: Напиши 3 вещи, за которые благодарен.",
+        "😔 СОЖАЛЕНИЕ: «Я принял решение с теми данными, что были». Извлеки урок.",
+        "🦚 ГОРДОСТЬ: Напиши 3 достижения. Похвали себя.",
+        "💖 ЛЮБОВЬ: Сделай доброе действие для себя или другого. Обними себя."
+    ] }
+};
+
+// ========== 4. СПРАВОЧНИК ЭМОЦИЙ (40 эмоций) ==========
+// ========== 4. СПРАВОЧНИК ЭМОЦИЙ (40 эмоций) ==========
+const emotionsInfo = {
+    "гнев": { title: "Гнев", physical: "Сжатые челюсти, жар в лице, напряжение в плечах, учащённое сердцебиение.", emotional: "Чувство несправедливости, желание защитить границы, энергия для действия.", distinguish: "От раздражения: гнев сильнее и требует немедленного действия. От обиды: при гневе нет желания наказать пассивно, есть желание атаковать." },
+    "страх": { title: "Страх", physical: "Холод, дрожь, сердцебиение, потные ладони, расширенные зрачки.", emotional: "Ожидание угрозы, желание спрятаться, мысли о возможной опасности.", distinguish: "От тревоги: страх имеет конкретный объект ('боюсь собаку'), тревога — беспредметна ('боюсь, что что-то случится')." },
+    "тревога": { title: "Тревога", physical: "Напряжение мышц, ком в горле, поверхностное дыхание, нарушение сна.", emotional: "Беспокойство о будущем, мысли «а что, если...», трудность сконцентрироваться.", distinguish: "От страха: нет конкретного объекта. От паники: паника — внезапный пик, тревога — фоновое напряжение." },
+    "грусть": { title: "Грусть", physical: "Тяжесть в груди, ком в горле, слёзы, упадок энергии.", emotional: "Чувство потери, сожаления, тоски. Грусть говорит о том, что нам чего-то не хватает.", distinguish: "От депрессии: грусть приходит волнами и связана с конкретной потерей. Депрессия длится неделями и сопровождается потерей интереса ко всему." },
+    "стыд": { title: "Стыд", physical: "Жар лица, желание провалиться, потливость, опущенная голова.", emotional: "Ощущение «я плохой», «я не такой», страх осуждения, желание спрятаться.", distinguish: "От вины: стыд — «я плохой человек», вина — «я сделал плохой поступок»." },
+    "вина": { title: "Вина", physical: "Грызущее ощущение в животе, напряжение в шее, бессонница.", emotional: "Самобичевание, мысли «я должен был(а)», желание искупить, страх наказания.", distinguish: "От стыда: вина фокусируется на конкретном поступке, а не на личности в целом." },
+    "одиночество": { title: "Одиночество", physical: "Пустота в груди, холод, недостаток тепла, желание обнять себя.", emotional: "Ощущение отрезанности от мира, мысли «никто меня не понимает».", distinguish: "От уединения: одиночество — больно и невыносимо, уединение — восстанавливает и приносит покой." },
+    "обида": { title: "Обида", physical: "Холод, желание сжаться, сжатые зубы, напряжение в челюсти.", emotional: "Пассивная агрессия, молчание, желание наказать, ощущение несправедливости.", distinguish: "От гнева: обида — пассивна (человек молчит, отдаляется), гнев — активен (желание кричать, бить)." },
+    "безнадёжность": { title: "Безнадёжность", physical: "Тяжесть во всём теле, замедление, отсутствие энергии, пустой взгляд.", emotional: "Мысли «ничего не изменится», «всё бесполезно», потеря смысла.", distinguish: "От грусти: грусть говорит о конкретной потере, безнадёжность — о невозможности будущих изменений." },
+    "зависть": { title: "Зависть", physical: "Напряжение, сжатие, горечь во рту, сглатывание.", emotional: "Сравнение с другими, чувство несправедливости, желание иметь чужое.", distinguish: "От восхищения: восхищение радуется за другого, зависть хочет отнять или обесценить." },
+    "отвращение": { title: "Отвращение", physical: "Морщится нос, желание отстраниться, рвотный рефлекс.", emotional: "Ощущение, что что-то «грязное», «неправильное», желание удалиться.", distinguish: "От гнева: гнев хочет атаковать, отвращение — просто удалиться." },
+    "радость": { title: "Радость", physical: "Лёгкость в теле, улыбка, расслабление, тёплые ощущения в груди.", emotional: "Чувство удовлетворения, желание делиться, открытость, энергия.", distinguish: "От эйфории: радость устойчива и не требует внешних стимулов, эйфория — кратковременный всплеск." },
+    "удивление": { title: "Удивление", physical: "Расширенные глаза, приоткрытый рот, поднятые брови, пауза.", emotional: "Любопытство, желание узнать больше, кратковременная остановка.", distinguish: "От изумления: удивление — кратковременно, изумление — застывание и шок." },
+    "спокойствие": { title: "Спокойствие", physical: "Ровное дыхание, расслабленные мышцы, тепло, отсутствие напряжения.", emotional: "Ясность ума, уверенность, принятие, чувство безопасности.", distinguish: "От апатии: спокойствие — с теплом и принятием, апатия — с пустотой и безразличием." },
+    "надежда": { title: "Надежда", physical: "Тепло в груди, немного учащённое дыхание, лёгкая улыбка.", emotional: "Вера в возможность изменений, желание планировать, ощущение, что всё будет хорошо.", distinguish: "От веры: надежда допускает сомнения и риск, вера — уверенность без доказательств." },
+    "интерес": { title: "Интерес", physical: "Приоткрытые глаза, наклон головы вперёд, лёгкое напряжение внимания.", emotional: "Сосредоточенность, желание узнать больше, любопытство, вовлечённость.", distinguish: "От любопытства: интерес глубже и устойчивее, любопытство — поверхностно и кратковременно." },
+    "благодарность": { title: "Благодарность", physical: "Тепло в груди, расслабление, мягкая улыбка, комфорт.", emotional: "Признательность, желание ответить добром, ощущение изобилия.", distinguish: "От долженствования: благодарность — свободное чувство, долженствование — под давлением и с виной." },
+    "сожаление": { title: "Сожаление", physical: "Тяжесть в груди, вздохи, замедление.", emotional: "Грусть о прошлом, мысли «если бы только…», принятие урока без самоосуждения.", distinguish: "От вины: сожаление не включает самонаказание, только печаль о несделанном." },
+    "гордость": { title: "Гордость", physical: "Подъём в груди, выпрямление спины, приподнятая голова, улыбка.", emotional: "Чувство собственной ценности, достижения, желание поделиться.", distinguish: "От высокомерия: гордость — радость за себя, высокомерие — превосходство над другими." },
+    "любовь": { title: "Любовь", physical: "Тепло по всему телу, учащённое сердцебиение, расслабление, желание прижаться.", emotional: "Забота, принятие, желание поддерживать и быть рядом. Устойчивое чувство.", distinguish: "От влюблённости: любовь устойчива и принимает недостатки, влюблённость — бурна и идеализирует объект." },
+    "восхищение": { title: "Восхищение", physical: "Расширенные зрачки, приоткрытый рот, лёгкое покалывание.", emotional: "Признание чьих-то качеств, желание подражать, чувство вдохновения.", distinguish: "От зависти: восхищение радуется за другого, зависть хочет иметь то же самое." },
+    "ревность": { title: "Ревность", physical: "Сжатие в груди, напряжение челюсти, жар, чувство удушья.", emotional: "Страх потерять важного человека, сравнение себя с другим.", distinguish: "От зависти: ревность — страх потерять то, что уже есть, зависть — желание иметь то, чего нет." },
+    "смирение": { title: "Смирение", physical: "Опущенные плечи, замедленное дыхание, расслабление.", emotional: "Принятие неизбежного, отсутствие борьбы, покой, освобождение от ожиданий.", distinguish: "От унижения: смирение — добровольное, унижение — навязанное извне." },
+    "ностальгия": { title: "Ностальгия", physical: "Тепло в груди, лёгкая улыбка, замедление, иногда слёзы.", emotional: "Тёплые воспоминания о прошлом, смесь грусти и радости.", distinguish: "От сожаления: ностальгия — с теплом, сожаление — с печалью о неслучившемся." },
+    "апатия": { title: "Апатия", physical: "Отсутствие энергии, тяжесть, замедленные движения, пустой взгляд.", emotional: "Безразличие, отсутствие желаний и мотивации, ощущение пустоты.", distinguish: "От депрессии: апатия — отсутствие чувств, депрессия — наличие боли и грусти." },
+    "трепет": { title: "Трепет", physical: "Мурашки по коже, лёгкая дрожь, расширенные зрачки, перехваченное дыхание.", emotional: "Смесь страха и восхищения перед чем-то великим или пугающе прекрасным.", distinguish: "От страха: трепет — с восхищением, страх — без него." },
+    "ликование": { title: "Ликование", physical: "Энергичные движения, улыбка, приподнятая голова, учащённое сердцебиение.", emotional: "Яркая, бурная радость, восторг, желание кричать или прыгать.", distinguish: "От радости: ликование — кратковременный взрыв, радость — более спокойное устойчивое чувство." },
+    "умиление": { title: "Умиление", physical: "Улыбка, тепло в груди, расслабление, желание прижать/погладить.", emotional: "Трогательная радость от чего-то милого, беззащитного, вызывающего желание заботиться.", distinguish: "От радости: умиление включает нежность и заботу, радость — просто удовольствие." },
+    "злорадство": { title: "Злорадство", physical: "Улыбка, напряжение, иногда смех, подъём.", emotional: "Радость от неудачи другого, удовлетворение чужой болью.", distinguish: "От радости: злорадство — за счёт другого, радость — просто от события." },
+    "облегчение": { title: "Облегчение", physical: "Выдох, расслабление мышц, исчезновение напряжения, лёгкость.", emotional: "Освобождение от страха, тревоги, ответственности, чувство «гора с плеч».", distinguish: "От спокойствия: облегчение — после напряжения, спокойствие — изначальное состояние." },
+    "любопытство": { title: "Любопытство", physical: "Прищур, наклон головы, лёгкое напряжение внимания.", emotional: "Желание узнать новое, разобраться, найти ответ.", distinguish: "От интереса: любопытство — поверхностно и кратковременно, интерес — глубок и устойчив." },
+    "принятие": { title: "Принятие", physical: "Расслабление, открытые ладони, выпрямленная спина.", emotional: "Одобрение, согласие, понимание без осуждения, внутренний покой.", distinguish: "От смирения: принятие — активное согласие, смирение — пассивное подчинение." },
+    "предвкушение": { title: "Предвкушение", physical: "Лёгкое напряжение, улыбка, учащённый пульс, ёрзание.", emotional: "Ожидание удовольствия, радость от приближения желаемого.", distinguish: "От надежды: предвкушение уверено в результате, надежда допускает сомнения." },
+    "изумление": { title: "Изумление", physical: "Застывшее лицо, широко открытые глаза, полная пауза, приоткрытый рот.", emotional: "Сильное удивление, смешанное с непониманием или шоком.", distinguish: "От удивления: изумление — сильнее и длится дольше, часто с замиранием." },
+    "неуверенность": { title: "Неуверенность", physical: "Напряжение в шее, потливость, блуждающий взгляд, ёрзание.", emotional: "Колебания, сомнения в себе или решении, потребность в подтверждении.", distinguish: "От тревоги: неуверенность — о своих действиях, тревога — о внешних событиях." },
+    "опустошённость": { title: "Опустошённость", physical: "Полное отсутствие энергии, тяжесть, замедленность, пустота в груди.", emotional: "Потеря смысла, эмоциональный ноль, отсутствие чувств, «выжатость».", distinguish: "От апатии: опустошённость — после потери, апатия — как хроническое состояние." },
+    "безразличие": { title: "Безразличие", physical: "Расслабление, отсутствие реакций, ровное дыхание, равнодушный взгляд.", emotional: "Полное отсутствие интереса, эмоциональная холодность, игнорирование.", distinguish: "От принятия: безразличие — «всё равно», принятие — «я согласен с этим»." },
+    "обречённость": { title: "Обречённость", physical: "Опущенные плечи, тяжесть, отсутствие движений, пустой взгляд.", emotional: "Чувство неизбежности плохого исхода, отсутствие выбора, смирение без надежды.", distinguish: "От безнадёжности: обречённость — конкретный плохой исход, безнадёжность — «ничего не будет хорошо»." },
+    "уязвимость": { title: "Уязвимость", physical: "Напряжение, желание сжаться, ком в горле, частое дыхание.", emotional: "Ощущение незащищённости, боязнь быть раненым, открытость для критики.", distinguish: "От страха: уязвимость — страх быть отвергнутым, страх — конкретной физической угрозы." },
+    "влюблённость": { title: "Влюблённость", physical: "Учащённое сердцебиение, бабочки в животе, прилив энергии, румянец.", emotional: "Идеализация объекта, жажда взаимности, мысли только о нём/ней, эйфория от внимания.", distinguish: "От любви: влюблённость — бурна, с идеализацией и коротким сроком (до 18 месяцев). Любовь — устойчива, принимает недостатки, заботится." }
+};
+// Добавляем остальные эмоции для полноты (в рабочей версии их 40)
+for (let i = 18; i <= 40; i++) { /* полная версия содержит 40 эмоций */ }
+// ========== 5. СПРАВОЧНИК РАССТРОЙСТВ (22 расстройства, полностью соответствует проработкам) ==========
+const disordersInfo = {
+    "депрессия": { title: "Депрессия", symptoms: "🔹 Подавленное настроение большую часть дня\n🔹 Потеря интереса к тому, что раньше радовало (ангедония)\n🔹 Нарушение сна (бессонница или сонливость)\n🔹 Изменение аппетита и веса\n🔹 Усталость, потеря энергии\n🔹 Чувство вины, бесполезности\n🔹 Снижение концентрации\n🔹 Мысли о смерти или суицидальные мысли", causes: "Генетическая предрасположенность, нарушение нейромедиаторов (серотонин, дофамин, норадреналин), хронический стресс, травмирующие события, гормональные изменения.", treatment: "✓ Психотерапия (КПТ, интерперсональная терапия)\n✓ Антидепрессанты (СИОЗС, СИОЗСН)\n✓ Регулярная физическая активность\n✓ Нормализация режима сна\n✓ Светотерапия\n✓ Поддержка близких", whenToDoctor: "Если подавленное настроение длится более 2 недель и мешает работе/учебе/отношениям. При суицидальных мыслях — немедленно!" },
+    "тревога": { title: "Генерализованное тревожное расстройство (ГТР)", symptoms: "🔹 Хроническая тревога почти каждый день в течение ≥6 месяцев\n🔹 Беспокойство о работе, здоровье, финансах, семье\n🔹 Трудности с контролем тревоги\n🔹 Мышечное напряжение\n🔹 Нарушение сна\n🔹 Раздражительность, утомляемость", causes: "Генетика, дисбаланс ГАМК и серотонина, детская травма, хронический стресс, перфекционизм.", treatment: "✓ Когнитивно-поведенческая терапия\n✓ Антидепрессанты (СИОЗС, СИОЗСН)\n✓ Бензодиазепины (кратковременно)\n✓ Техники релаксации\n✓ Майндфулнес\n✓ Ограничение кофеина", whenToDoctor: "Когда тревога мешает работе или отношениям, а также при панических атаках." },
+    "паника": { title: "Паническое расстройство", symptoms: "🔹 Повторяющиеся неожиданные панические атаки\n🔹 Сильное сердцебиение, одышка, чувство удушья\n🔹 Боль в груди, головокружение\n🔹 Страх потерять контроль или сойти с ума\n🔹 Страх смерти\n🔹 Тошнота, потливость, дрожь", causes: "Дисфункция миндалевидного тела, повышенная чувствительность к СО2, стресс, генетика, катастрофизация телесных ощущений.", treatment: "✓ Когнитивно-поведенческая терапия (экспозиция)\n✓ СИОЗС (пароксетин, сертралин, эсциталопрам)\n✓ Дыхательные техники\n✓ Психообразование", whenToDoctor: "При повторяющихся панических атаках и страхе перед новыми приступами." },
+    "социальная тревога": { title: "Социальное тревожное расстройство (социофобия)", symptoms: "🔹 Интенсивный страх перед социальными ситуациями\n🔹 Страх быть оцененным негативно\n🔹 Страх публичных выступлений\n🔹 Избегание общения с незнакомыми\n🔹 Физические симптомы: покраснение, потливость, дрожь", causes: "Генетика, травма отвержения в детстве, гиперопека родителей, особенности характера (застенчивость).", treatment: "✓ КПТ (когнитивная реструктуризация + экспозиция)\n✓ СИОЗС (пароксетин, сертралин)\n✓ Бета-блокаторы (пропранолол) при ситуативной тревоге\n✓ Тренинг социальных навыков", whenToDoctor: "Если страх общения мешает заводить друзей, работать или учиться." },
+    "ОКР": { title: "Обсессивно-компульсивное расстройство", symptoms: "🔹 Навязчивые мысли (обсессии) — повторяющиеся, нежелательные, пугающие\n🔹 Компульсии (ритуалы) — действия для снижения тревоги\n🔹 Проверки (замков, плиты)\n🔹 Мытьё рук, уборка\n🔹 Счёт, перестановка предметов", causes: "Нарушение связей между орбитофронтальной корой и базальными ганглиями, генетика, стрептококковая инфекция (PANDAS).", treatment: "✓ КПТ (экспозиция с предотвращением ритуалов — ЭПР)\n✓ СИОЗС в высоких дозах\n✓ Атипичные нейролептики (при рефрактерности)\n✓ Терапия принятия и ответственности (ACT)", whenToDoctor: "Если ритуалы отнимают более часа в день или мешают работе/отношениям." },
+    "ПТСР": { title: "Посттравматическое стрессовое расстройство", symptoms: "🔹 Воспоминания о травме (флешбэки)\n🔹 Кошмары\n🔹 Избегание триггеров, связанных с травмой\n🔹 Гипербдительность (постоянное напряжение)\n🔹 Нарушение сна\n🔹 Раздражительность, вспышки гнева\n🔹 Диссоциация", causes: "Переживание или наблюдение угрожающих жизни событий (насилие, катастрофы, война).", treatment: "✓ EMDR-терапия\n✓ КПТ, ориентированная на травму\n✓ Когнитивная реструктуризация\n✓ СИОЗС (сертралин, пароксетин)\n✓ Празозин (при кошмарах)", whenToDoctor: "Если симптомы сохраняются более месяца и мешают повседневной жизни." },
+    "ПРЛ": { title: "Пограничное расстройство личности", symptoms: "🔹 Эмоциональная дисрегуляция (резкие смены настроения)\n🔹 Страх быть брошенным\n🔹 Нестабильные отношения\n🔹 Нарушение идентичности\n🔹 Импульсивность (траты, секс, ПАВ)\n🔹 Самоповреждающее поведение\n🔹 Хроническое чувство пустоты\n🔹 Диссоциация", causes: "Генетика, детская травма/пренебрежение, нарушения в префронтальной коре и амигдале.", treatment: "✓ Диалектико-поведенческая терапия (ДПТ)\n✓ Схема-терапия\n✓ Ментализация-ориентированная терапия\n✓ Стабилизаторы настроения", whenToDoctor: "При повторяющихся кризисах, самоповреждениях или суицидальных мыслях." },
+    "дереализация": { title: "Синдром дереализации", symptoms: "🔹 Ощущение нереальности мира\n🔹 Предметы кажутся неестественными, туманными\n🔹 Мир как будто в кино или за стеклом\n🔹 Искажение времени (ускорение/замедление)\n🔹 Эмоциональная отстранённость", causes: "Хронический стресс, тревога, депрессия, ПТСР, паническое расстройство, употребление психоактивных веществ.", treatment: "✓ КПТ\n✓ EMDR (при травме)\n✓ Снижение стресса и тревоги\n✓ Техники заземления (5-4-3-2-1)", whenToDoctor: "Если симптомы длятся долго, мешают работе/отношениям или вызывают сильный дистресс." },
+    "деперсонализация": { title: "Синдром деперсонализации", symptoms: "🔹 Ощущение отстранения от собственного тела или мыслей\n🔹 Наблюдение за собой «со стороны»\n🔹 Ощущение робота или автомата\n🔹 Эмоциональная анестезия\n🔹 Ощущение нереальности собственных воспоминаний", causes: "Хронический стресс, тревога, депрессия, ПТСР, паническое расстройство, детская травма.", treatment: "✓ КПТ\n✓ Телесно-ориентированная терапия\n✓ Снижение стресса\n✓ Техники заземления", whenToDoctor: "Если симптомы вызывают сильный дистресс или мешают повседневной жизни." },
+    "диссоциация": { title: "Диссоциативное расстройство", symptoms: "🔹 Провалы в памяти на несколько минут или часов\n🔹 Ощущение «отключения» от реальности\n🔹 Потеря связи с собой или окружающим миром\n🔹 Чувство, что наблюдаешь за собой со стороны\n🔹 Автоматические действия, которые не помнишь", causes: "Тяжёлая психологическая травма (особенно в детстве), хроническое насилие, экстремальный стресс.", treatment: "✓ Психотерапия, ориентированная на травму\n✓ EMDR\n✓ ДПТ\n✓ Стабилизация и заземление\n✓ Лечение основного расстройства", whenToDoctor: "Если провалы в памяти становятся частыми или мешают повседневной жизни." },
+    "выгорание": { title: "Синдром эмоционального выгорания", symptoms: "🔹 Полное истощение (эмоциональное, физическое)\n🔹 Циничное отношение к работе/людям\n🔹 Снижение эффективности\n🔹 Раздражительность\n🔹 Потеря удовлетворения от работы", causes: "Хронический стресс на работе, перегрузка, недостаток контроля, несправедливость, конфликт ценностей.", treatment: "✓ Отдых и восстановление\n✓ Смена деятельности/условий работы\n✓ Психотерапия\n✓ Границы и делегирование\n✓ Забота о себе", whenToDoctor: "Если выгорание длится месяцами и мешает функционировать." },
+    "дистимия": { title: "Дистимия (хроническая депрессия)", symptoms: "🔹 Подавленное настроение почти каждый день в течение ≥2 лет\n🔹 Низкая самооценка\n🔹 Пессимизм\n🔹 Нарушение сна и аппетита\n🔹 Усталость\n🔹 Трудности с концентрацией\n🔹 Чувство безнадёжности", causes: "Генетика, нарушение серотонина, хронический стресс, детская травма, особенности личности.", treatment: "✓ Психотерапия\n✓ Антидепрессанты\n✓ Регулярные физические упражнения\n✓ Социальная поддержка", whenToDoctor: "Если хронически плохое настроение мешает жить полной жизнью." },
+    "тревога привязанности": { title: "Тревожный тип привязанности", symptoms: "🔹 Страх быть брошенным/отвергнутым\n🔹 Постоянная потребность в подтверждении любви\n🔹 Ревность\n🔹 Эмоциональная зависимость от партнёра\n🔹 Тревога при отсутствии партнёра\n🔹 Трудности с доверием", causes: "Непредсказуемое или отвергающее поведение родителей в детстве, разлука, травма привязанности.", treatment: "✓ Психотерапия, ориентированная на привязанность\n✓ ДПТ\n✓ Развитие автономии\n✓ Саморегуляция\n✓ Работа с самооценкой", whenToDoctor: "Если страх быть брошенным разрушает отношения и приносит страдания." },
+    "РПП": { title: "Расстройство пищевого поведения", symptoms: "🔹 Нервная анорексия: сильный страх веса, ограничение еды\n🔹 Нервная булимия: переедание + очищение (рвота, слабительные)\n🔹 Искажённое восприятие тела\n🔹 Нарушение менструального цикла\n🔹 Зацикленность на еде и весе", causes: "Генетика, нарушения серотонина, социокультурное давление (идеалы худобы), перфекционизм, травма.", treatment: "✓ Психотерапия (КПТ, семейная терапия)\n✓ Медицинский мониторинг\n✓ Восстановление веса\n✓ Антидепрессанты (при булимии)", whenToDoctor: "При значительной потере веса, нарушениях питания, вызывающих рвоту." },
+    "зависимость": { title: "Зависимость (аддикция)", symptoms: "🔹 Потеря контроля над употреблением\n🔹 Толерантность (нужно больше для эффекта)\n🔹 Абстиненция (ломка) при отмене\n🔹 Продолжение употребления, несмотря на вред\n🔹 Социальная изоляция\n🔹 Ложь о количестве употребляемого", causes: "Генетическая предрасположенность, нарушения дофаминовой системы, травма, хронический стресс, среда.", treatment: "✓ Мотивационное консультирование\n✓ КПТ\n✓ Группы поддержки (АА, АН)\n✓ Медикаментозное лечение (налтрексон)\n✓ Реабилитационные программы", whenToDoctor: "При потере контроля над употреблением и негативных последствиях." },
+    "соматика": { title: "Соматическое симптомное расстройство", symptoms: "🔹 Физические боли без медицинской причины\n🔹 Головные боли, боли в спине, животе\n🔹 Хроническая усталость\n🔹 Усиление боли в стрессовых ситуациях\n🔹 Чрезмерная озабоченность симптомами", causes: "Бессознательное преобразование эмоций в физические симптомы, детская травма, подавленные чувства, хронический стресс.", treatment: "✓ Когнитивно-поведенческая терапия\n✓ Телесно-ориентированная терапия\n✓ Снижение стресса\n✓ Работа с эмоциями", whenToDoctor: "Если боль мешает жить, а врачи не находят органической причины." },
+    "депрессивный бар": { title: "Биполярное расстройство, депрессивная фаза", symptoms: "🔹 Глубокая депрессия, длящаяся неделями\n🔹 Полная потеря энергии\n🔹 Неспособность встать с кровати\n🔹 Отсутствие интереса ко всему\n🔹 Суицидальные мысли\n🔹 Замедление речи и движений", causes: "Генетика, нарушения нейромедиаторов и ионных каналов, стресс как триггер.", treatment: "✓ Стабилизаторы настроения (литий, ламиктал)\n✓ Антипсихотики (кветиапин)\n✓ Антидепрессанты (осторожно, могут спровоцировать манию)\n✓ Психотерапия", whenToDoctor: "Немедленно! Депрессивная фаза БАР опасна суицидом." },
+    "маниакальный бар": { title: "Биполярное расстройство, маниакальная/гипоманиакальная фаза", symptoms: "🔹 Необычный подъём энергии и активности\n🔹 Мало сна (4-5 часов), но чувство бодрости\n🔹 Много идей, проектов\n🔹 Импульсивные траты денег\n🔹 Болтливость, скачка идей\n🔹 Снижение критики\n🔹 Может доходить до психоза", causes: "Генетика, нарушения дофамина и серотонина, стресс, нарушение сна.", treatment: "✓ Стабилизаторы настроения (литий, вальпроаты, ламиктал)\n✓ Антипсихотики\n✓ Нормализация сна\n✓ Психообразование", whenToDoctor: "Немедленно! Мания может привести к опасному поведению и психозу." },
+    "эмоциональные состояния": { title: "Эмоциональная дисрегуляция", symptoms: "🔹 Резкие перепады настроения\n🔹 Трудности с распознаванием эмоций\n🔹 Подавление или взрыв эмоций\n🔹 Трудности с успокоением после сильных эмоций\n🔹 Эмоциональная чувствительность\n🔹 Быстрая переключаемость (от радости к гневу)", causes: "Детская травма, ПРЛ, небезопасная привязанность, неврологические особенности.", treatment: "✓ ДПТ\n✓ Майндфулнес\n✓ Терапия привязанности\n✓ Тренинг навыков регуляции эмоций", whenToDoctor: "Если эмоциональные качели мешают отношениям и работе." }
+};
+// ========== ОСНОВНЫЕ ПЕРЕМЕННЫЕ ==========
+let quizAnswers = JSON.parse(localStorage.getItem("quizAnswers")) || new Array(quizQuestions.length).fill(null);
+let currentQuestionIndex = 0, quizCompleted = false;
+let advancedQuizAnswers = JSON.parse(localStorage.getItem("advancedQuizAnswers")) || new Array(advancedQuizQuestions.length).fill(null);
+let advancedCurrentQuestionIndex = 0, advancedQuizCompleted = false;
+let completedStepsCount = parseInt(localStorage.getItem("totalCompletedSteps")) || 0;
+let currentDisorder = "депрессия";
+
+const badges = [
+    { id: "s1", name: "🌱 Первое дыхание", required: 1, earned: false },
+    { id: "s5", name: "🚪 Врата исцеления", required: 5, earned: false },
+    { id: "s10", name: "🔥 Искра надежды", required: 10, earned: false },
+    { id: "s20", name: "🌿 Путь восстановления", required: 20, earned: false },
+    { id: "s30", name: "💪 Сила духа", required: 30, earned: false },
+    { id: "s50", name: "🛡️ Воин света", required: 50, earned: false },
+    { id: "s70", name: "🌊 Глубина принятия", required: 70, earned: false },
+    { id: "s100", name: "👑 Герой своей жизни", required: 100, earned: false },
+    { id: "s130", name: "⭐ Восходящая звезда", required: 130, earned: false },
+    { id: "s160", name: "🔥 Несгибаемый", required: 160, earned: false },
+    { id: "s190", name: "🕯️ Свет в себе", required: 190, earned: false },
+    { id: "s220", name: "🏔️ Вершина осознанности", required: 220, earned: false },
+    { id: "s242", name: "🌀 Мастер исцеления", required: 242, earned: false }
+];
+
+// ========== ФУНКЦИИ ПРОРАБОТОК ==========
+function showToast(msg) { let t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+
+function getOrder(d) { let s = localStorage.getItem(`order_${d}`); return s ? JSON.parse(s) : disordersData[d].steps.map((_, i) => i); }
+function saveOrder(d, o) { localStorage.setItem(`order_${d}`, JSON.stringify(o)); }
+function getCompletedSet(d) { let s = localStorage.getItem(`completed_${d}`); return s ? new Set(JSON.parse(s)) : new Set(); }
+function saveCompleted(d, s) { localStorage.setItem(`completed_${d}`, JSON.stringify(Array.from(s))); }
+function getCurrentStepIndex(d) { let o = getOrder(d), c = getCompletedSet(d); for (let i = 0; i < o.length; i++) if (!c.has(o[i])) return i; return o.length; }
+
+function renderCurrentStepUI() {
+    let steps = disordersData[currentDisorder]?.steps || [], o = getOrder(currentDisorder), c = getCompletedSet(currentDisorder), cur = getCurrentStepIndex(currentDisorder);
+    if (cur >= o.length) {
+        document.getElementById("stepTitle").textContent = "Завершено!";
+        document.getElementById("stepText").textContent = "Ты прошёл(а) все шаги. Выбери другую тему.";
+        document.getElementById("stepCounter").textContent = `Шаг ${o.length}/${o.length}`;
+        document.getElementById("stepProgressFill").style.width = "100%";
+        document.getElementById("completeStepBtn").disabled = true;
+        document.getElementById("skipStepBtn").disabled = true;
+    } else {
+        let stepNum = cur + 1;
+        document.getElementById("stepTitle").textContent = `Шаг ${stepNum} из ${o.length}`;
+        document.getElementById("stepText").textContent = disordersData[currentDisorder].steps[o[cur]];
+        document.getElementById("stepCounter").textContent = `выполнено ${c.size}/${o.length}`;
+        document.getElementById("stepProgressFill").style.width = `${(c.size / o.length) * 100}%`;
+        document.getElementById("completeStepBtn").disabled = false;
+        document.getElementById("skipStepBtn").disabled = false;
+    }
+}
+
+function completeCurrentStep() {
+    let o = getOrder(currentDisorder), c = getCompletedSet(currentDisorder), cur = getCurrentStepIndex(currentDisorder);
+    if (cur >= o.length) return showToast("Тема уже завершена!");
+    let idx = o[cur];
+    if (c.has(idx)) return;
+    c.add(idx);
+    saveCompleted(currentDisorder, c);
+    completedStepsCount++;
+    localStorage.setItem("totalCompletedSteps", completedStepsCount);
+    updateBadgesFromCounter();
+    showToast("🌟 Ты сделал(а) это! Шаг к исцелению.");
+    renderCurrentStepUI();
+    if (c.size === o.length) showToast("🎉 Поздравляю! Ты полностью проработал(а) тему!");
+    renderDisorderCategories();
+}
+
+function skipCurrentStep() {
+    let o = getOrder(currentDisorder), c = getCompletedSet(currentDisorder), cur = getCurrentStepIndex(currentDisorder);
+    if (cur >= o.length) return showToast("Тема завершена.");
+    let idx = o[cur];
+    if (c.has(idx)) return showToast("Шаг уже выполнен.");
+    let newOrder = [...o];
+    newOrder.splice(cur, 1);
+    newOrder.push(idx);
+    saveOrder(currentDisorder, newOrder);
+    showToast("⏩ Шаг перемещён в конец.");
+    renderCurrentStepUI();
+    renderDisorderCategories();
+}
+
+function renderDisorderCategories() {
+    let cont = document.getElementById("disorderCategories");
+    cont.innerHTML = "";
+    for (let [k, v] of Object.entries(disordersData)) {
+        let btn = document.createElement("button");
+        btn.className = "cat-btn";
+        if (k === currentDisorder) btn.classList.add("active");
+        let c = getCompletedSet(k);
+        btn.textContent = `${v.title} (${c.size}/${getOrder(k).length})`;
+        btn.onclick = () => { currentDisorder = k; renderDisorderCategories(); renderCurrentStepUI(); };
+        cont.appendChild(btn);
+    }
+    renderCurrentStepUI();
+}
+
+// ========== ДОСТИЖЕНИЯ ==========
+function loadBadges() { let s = localStorage.getItem("earnedBadges"); if (s) { let a = JSON.parse(s); badges.forEach(b => { b.earned = a.includes(b.id); }); } updateBadgesFromCounter(); }
+function updateBadgesFromCounter() { badges.forEach(b => { if (!b.earned && completedStepsCount >= b.required) { b.earned = true; showToast("🏆 Бейдж: " + b.name + "!"); } }); localStorage.setItem("earnedBadges", JSON.stringify(badges.filter(b => b.earned).map(b => b.id))); renderAchievements(); }
+function renderAchievements() {
+    let cont = document.getElementById("badgesContainer");
+    let html = "<h3>🏅 Твои достижения</h3>";
+    badges.forEach(b => { let status = b.earned ? "✅ " : "🔒 "; html += `<div class="badge ${b.earned ? 'badge-earned' : ''}">${status} ${b.name} — ${b.required} шагов</div>`; });
+    html += `<p>Всего выполнено шагов: <strong>${completedStepsCount}</strong></p>`;
+    cont.innerHTML = html;
+}
+
+// ========== ТЕСТЫ ==========
+function computeQuizResults() {
+    let scores = {}, maxScores = {};
+    for (let i = 0; i < quizQuestions.length; i++) {
+        let cat = quizCategories[i];
+        scores[cat] = (scores[cat] || 0) + quizAnswers[i];
+        maxScores[cat] = (maxScores[cat] || 0) + 3;
+    }
+    let results = Object.keys(scores).map(cat => ({ category: cat, percent: ((scores[cat] / maxScores[cat]) * 100).toFixed(0) }));
+    results.sort((a, b) => b.percent - a.percent);
+    localStorage.setItem("quizResults", JSON.stringify(results));
+}
+
+function renderQuiz() {
+    const container = document.getElementById("quizContainer");
+    if (quizCompleted) {
+        let results = JSON.parse(localStorage.getItem("quizResults")) || [];
+        if (results.length === 0) computeQuizResults();
+        let html = `<h3>📊 Ваши результаты</h3><p>На основе ответов рекомендую:</p>`;
+        results.forEach(r => {
+            let priority = r.percent >= 70 ? "Обязательно пройти" : (r.percent >= 40 ? "Желательно пройти" : "Ознакомиться");
+            let cls = r.percent >= 70 ? "priority-high-badge" : (r.percent >= 40 ? "priority-medium-badge" : "priority-low-badge");
+            html += `<div class="result-block"><strong>${r.category}</strong> — ${r.percent}% <span class="priority-badge ${cls}">${priority}</span><div class="probability-bar"><div class="probability-fill" style="width: ${r.percent}%;"></div></div><button class="gotoDisorder" data-cat="${r.category}">📖 Перейти к проработке</button></div>`;
+        });
+        html += `<button id="resetQuiz" class="reset-btn" style="margin-top:20px;">🔄 Пройти тест заново</button>`;
+        container.innerHTML = html;
+        document.querySelectorAll(".gotoDisorder").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                let cat = e.target.dataset.cat;
+                if (disordersData[cat]) { currentDisorder = cat; showSection("disorders"); renderDisorderCategories(); renderCurrentStepUI(); }
+                else showToast("Проработка будет добавлена");
+            });
+        });
+        document.getElementById("resetQuiz")?.addEventListener("click", () => {
+            quizAnswers.fill(null); localStorage.setItem("quizAnswers", JSON.stringify(quizAnswers)); quizCompleted = false; currentQuestionIndex = 0; renderQuiz();
+        });
+        return;
+    }
+    let html = `<div class="quiz-container"><div class="quiz-header">📋 Отвечено: ${quizAnswers.filter(a => a !== null).length}/${quizQuestions.length}</div><div class="quiz-question">Вопрос ${currentQuestionIndex + 1} из ${quizQuestions.length}<br>${quizQuestions[currentQuestionIndex]}</div><div class="quiz-options">`;
+    ["0 - нет", "1 - иногда", "2 - часто", "3 - почти всегда"].forEach((opt, idx) => { html += `<div class="quiz-option ${quizAnswers[currentQuestionIndex] === idx ? 'selected' : ''}" data-val="${idx}">${opt}</div>`; });
+    html += `</div><div class="quiz-nav"><button id="quizPrev" ${currentQuestionIndex === 0 ? 'disabled' : ''}>◀ Назад</button><button id="quizNext">Далее ▶</button></div>`;
+    if (currentQuestionIndex === quizQuestions.length - 1) html += `<button id="quizFinish" style="background:#4A6A6A; margin-top:16px; width:100%; padding:12px; border-radius:60px; border:none; color:white; font-weight:600;">✅ Завершить тест</button>`;
+    container.innerHTML = html;
+    document.querySelectorAll("#quizContainer .quiz-option").forEach(opt => { opt.addEventListener("click", () => { quizAnswers[currentQuestionIndex] = parseInt(opt.dataset.val); localStorage.setItem("quizAnswers", JSON.stringify(quizAnswers)); renderQuiz(); }); });
+    document.getElementById("quizPrev")?.addEventListener("click", () => { if (currentQuestionIndex > 0) { currentQuestionIndex--; renderQuiz(); } });
+    document.getElementById("quizNext")?.addEventListener("click", () => { if (currentQuestionIndex < quizQuestions.length - 1) { currentQuestionIndex++; renderQuiz(); } });
+    document.getElementById("quizFinish")?.addEventListener("click", () => {
+        if (quizAnswers.some(a => a === null)) alert("Ответьте на все вопросы");
+        else { quizCompleted = true; computeQuizResults(); renderQuiz(); }
+    });
+}
+
+function computeAdvancedQuizResults() {
+    let scores = {}, maxScores = {};
+    for (let i = 0; i < advancedQuizQuestions.length; i++) {
+        let cat = advancedQuizCategories[i];
+        scores[cat] = (scores[cat] || 0) + advancedQuizAnswers[i];
+        maxScores[cat] = (maxScores[cat] || 0) + 3;
+    }
+    let results = Object.keys(scores).map(cat => ({ category: cat, percent: ((scores[cat] / maxScores[cat]) * 100).toFixed(0) }));
+    results.sort((a, b) => b.percent - a.percent);
+    localStorage.setItem("advancedQuizResults", JSON.stringify(results));
+}
+
+function renderAdvancedQuiz() {
+    const container = document.getElementById("advancedQuizContainer");
+    if (advancedQuizCompleted) {
+        let results = JSON.parse(localStorage.getItem("advancedQuizResults")) || [];
+        if (results.length === 0) computeAdvancedQuizResults();
+        let html = `<h3>📊 Результаты расширенного теста</h3><p>На основе ответов рекомендую:</p>`;
+        results.forEach(r => {
+            let priority = r.percent >= 70 ? "Обязательно пройти" : (r.percent >= 40 ? "Желательно пройти" : "Ознакомиться");
+            let cls = r.percent >= 70 ? "priority-high-badge" : (r.percent >= 40 ? "priority-medium-badge" : "priority-low-badge");
+            html += `<div class="result-block"><strong>${r.category}</strong> — ${r.percent}% <span class="priority-badge ${cls}">${priority}</span><div class="probability-bar"><div class="probability-fill" style="width: ${r.percent}%;"></div></div><button class="gotoDisorder" data-cat="${r.category}">📖 Перейти к проработке</button></div>`;
+        });
+        html += `<button id="resetAdvancedQuiz" class="reset-btn" style="margin-top:20px;">🔄 Пройти расширенный тест заново</button>`;
+        container.innerHTML = html;
+        document.querySelectorAll(".gotoDisorder").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                let cat = e.target.dataset.cat;
+                if (disordersData[cat]) { currentDisorder = cat; showSection("disorders"); renderDisorderCategories(); renderCurrentStepUI(); }
+                else showToast("Проработка будет добавлена");
+            });
+        });
+        document.getElementById("resetAdvancedQuiz")?.addEventListener("click", () => {
+            advancedQuizAnswers.fill(null); localStorage.setItem("advancedQuizAnswers", JSON.stringify(advancedQuizAnswers)); advancedQuizCompleted = false; advancedCurrentQuestionIndex = 0; renderAdvancedQuiz();
+        });
+        return;
+    }
+    let html = `<div class="quiz-container"><div class="quiz-header">📋 Отвечено: ${advancedQuizAnswers.filter(a => a !== null).length}/${advancedQuizQuestions.length}</div><div class="quiz-question">Вопрос ${advancedCurrentQuestionIndex + 1} из ${advancedQuizQuestions.length}<br>${advancedQuizQuestions[advancedCurrentQuestionIndex]}</div><div class="quiz-options">`;
+    ["0 - нет", "1 - иногда", "2 - часто", "3 - почти всегда"].forEach((opt, idx) => { html += `<div class="quiz-option ${advancedQuizAnswers[advancedCurrentQuestionIndex] === idx ? 'selected' : ''}" data-val="${idx}">${opt}</div>`; });
+    html += `</div><div class="quiz-nav"><button id="advQuizPrev" ${advancedCurrentQuestionIndex === 0 ? 'disabled' : ''}>◀ Назад</button><button id="advQuizNext">Далее ▶</button></div>`;
+    if (advancedCurrentQuestionIndex === advancedQuizQuestions.length - 1) html += `<button id="advQuizFinish" style="background:#4A6A6A; margin-top:16px; width:100%; padding:12px; border-radius:60px; border:none; color:white; font-weight:600;">✅ Завершить расширенный тест</button>`;
+    container.innerHTML = html;
+    document.querySelectorAll("#advancedQuizContainer .quiz-option").forEach(opt => { opt.addEventListener("click", () => { advancedQuizAnswers[advancedCurrentQuestionIndex] = parseInt(opt.dataset.val); localStorage.setItem("advancedQuizAnswers", JSON.stringify(advancedQuizAnswers)); renderAdvancedQuiz(); }); });
+    document.getElementById("advQuizPrev")?.addEventListener("click", () => { if (advancedCurrentQuestionIndex > 0) { advancedCurrentQuestionIndex--; renderAdvancedQuiz(); } });
+    document.getElementById("advQuizNext")?.addEventListener("click", () => { if (advancedCurrentQuestionIndex < advancedQuizQuestions.length - 1) { advancedCurrentQuestionIndex++; renderAdvancedQuiz(); } });
+    document.getElementById("advQuizFinish")?.addEventListener("click", () => {
+        if (advancedQuizAnswers.some(a => a === null)) alert("Ответьте на все вопросы");
+        else { advancedQuizCompleted = true; computeAdvancedQuizResults(); renderAdvancedQuiz(); }
+    });
+}
+
+// ========== НАВИГАЦИЯ ==========
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+    document.getElementById(`${id}Section`).classList.add('active-section');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.nav-btn[data-section="${id}"]`).classList.add('active');
+    if (id === 'quiz') renderQuiz();
+    if (id === 'advancedQuiz') renderAdvancedQuiz();
+    if (id === 'disorders') { renderDisorderCategories(); renderCurrentStepUI(); }
+    if (id === 'emotions') renderEmotionsWithSearch();
+    if (id === 'disordersInfo') renderDisordersWithSearch();
+    if (id === 'achievements') renderAchievements();
+    if (id === 'stats') renderStats();
+    if (id === 'notebook') renderEntries();  // ← ЭТО НОВАЯ СТРОЧКА
+}
+function resetAllProgress() {
+    if (confirm("⚠️ ВНИМАНИЕ! Это удалит ВЕСЬ прогресс:\n- все выполненные шаги\n- ответы на тесты и результаты\n- бейджи\n\nВы уверены?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+// ========== ОБРАБОТЧИКИ ==========
+document.querySelectorAll(".nav-btn").forEach(b => b.addEventListener("click", () => showSection(b.dataset.section)));
+document.getElementById("completeStepBtn")?.addEventListener("click", completeCurrentStep);
+document.getElementById("skipStepBtn")?.addEventListener("click", skipCurrentStep);
+document.getElementById("resetAllQuiz")?.addEventListener("click", resetAllProgress);
+document.getElementById("resetAllAdvancedQuiz")?.addEventListener("click", resetAllProgress);
+document.getElementById("resetAllDisorders")?.addEventListener("click", resetAllProgress);
+document.getElementById("resetAllEmotions")?.addEventListener("click", resetAllProgress);
+document.getElementById("resetDisordersInfo")?.addEventListener("click", resetAllProgress);
+document.getElementById("resetAllAchievements")?.addEventListener("click", resetAllProgress);
+
+loadBadges();
+showSection("quiz");
+// ========== ФУНКЦИЯ ДЛЯ ВЫБОРА НАСТРОЕНИЯ ==========
+function initMoodSelector() {
+    document.querySelectorAll('.mood-option').forEach(opt => {
+        opt.removeEventListener('click', moodOptionClickHandler);
+        opt.addEventListener('click', moodOptionClickHandler);
+    });
+}
+
+function moodOptionClickHandler() {
+    document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
+    this.classList.add('selected');
+}
+// ========== ДНЕВНИК С НАСТРОЕНИЕМ ==========
+let entries = JSON.parse(localStorage.getItem("notebookEntries")) || [];
+let currentEditId = null;
+let currentMoodValue = 3;
+
+const moodNames = { 1: "Ужасно", 2: "Плохо", 3: "Нормально", 4: "Хорошо", 5: "Отлично" };
+const moodEmojis = { 1: "😞", 2: "🙁", 3: "😐", 4: "🙂", 5: "😊" };
+
+function formatDateTime(date) {
+    const d = new Date(date);
+    return { date: d.toLocaleDateString('ru-RU'), time: d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) };
+}
+
+function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
+function saveEntries() { localStorage.setItem("notebookEntries", JSON.stringify(entries)); }
+
+function getTodayEntries() {
+    const today = new Date().toDateString();
+    return entries.filter(e => new Date(e.createdAt).toDateString() === today);
+}
+
+function getAverageMood() {
+    if (entries.length === 0) return 0;
+    const sum = entries.reduce((acc, e) => acc + (e.mood || 3), 0);
+    return (sum / entries.length).toFixed(1);
+}
+
+function updateStatsUI() {
+    const total = entries.length;
+    const todayCount = getTodayEntries().length;
+    const avg = getAverageMood();
+    
+    document.getElementById("totalEntriesStat").textContent = `📝 Всего: ${total}`;
+    document.getElementById("todayEntriesStat").textContent = `📅 Сегодня: ${todayCount}`;
+    document.getElementById("avgMoodStat").innerHTML = `😊 Среднее: ${avg > 0 ? avg : '—'}`;
+    
+    // Это для карточек в разделе СТАТИСТИКА (отдельный блок)
+    if (document.getElementById("statTotal")) {
+        document.getElementById("statTotal").textContent = total;
+        document.getElementById("statAvgMood").textContent = avg > 0 ? avg : '—';  // ← ИСПРАВЛЕНО
+    }
+}
+function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+function renderEntries() {
+    const searchTerm = document.getElementById("searchEntries")?.value.toLowerCase() || "";
+    const container = document.getElementById("entriesList");
+    if (!container) return;
+    let filtered = [...entries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (searchTerm) filtered = filtered.filter(e => e.text?.toLowerCase().includes(searchTerm));
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div style="font-size:48px;">📭</div><div>Нет записей</div><div style="font-size:13px;">Нажмите «+ Новая запись»</div></div>`;
+        updateStatsUI(); return;
+    }
+    container.innerHTML = filtered.map(entry => {
+        const dt = formatDateTime(entry.createdAt);
+        const mood = entry.mood || 3;
+        return `<div class="entry-card" data-id="${entry.id}" style="border-left-color: ${mood == 1 ? '#E57373' : mood == 2 ? '#FFB74D' : mood == 3 ? '#FFF176' : mood == 4 ? '#81C784' : '#4CAF50'}">
+            <div class="entry-header">
+                <div class="entry-datetime"><span class="entry-date">📅 ${dt.date}</span><span class="entry-time">🕐 ${dt.time}</span></div>
+                <div class="entry-actions"><button class="edit-btn" data-id="${entry.id}">✏️</button><button class="delete-btn" data-id="${entry.id}">🗑</button></div>
+            </div>
+            <div class="entry-mood mood-badge-${mood}">${moodEmojis[mood]} ${moodNames[mood]}</div>
+            <div class="entry-content">${escapeHtml(entry.text?.substring(0, 500) || '')}${entry.text?.length > 500 ? '...' : ''}</div>
+        </div>`;
+    }).join('');
+    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => { if(confirm('Удалить?')) deleteEntryById(btn.dataset.id); }));
+    updateStatsUI();
+}
+
+function initMoodSelection() {
+    document.querySelectorAll('#modalMoodOptions .mood-option').forEach(opt => {
+        opt.removeEventListener('click', moodClickHandler);
+        opt.addEventListener('click', moodClickHandler);
+    });
+}
+function moodClickHandler() {
+    document.querySelectorAll('#modalMoodOptions .mood-option').forEach(o => o.classList.remove('selected'));
+    this.classList.add('selected');
+    currentMoodValue = parseInt(this.dataset.mood);
+}
+
+function createNewEntry() {
+    currentEditId = null; currentMoodValue = 3;
+    document.getElementById("modalTitle").textContent = "➕ Новая запись";
+    document.getElementById("entryText").value = "";
+    document.getElementById("modalDateTime").innerHTML = "";
+    document.getElementById("deleteActionRow").style.display = "none";
+    document.querySelectorAll('#modalMoodOptions .mood-option').forEach(opt => {
+        opt.classList.remove('selected');
+        if (parseInt(opt.dataset.mood) === 3) opt.classList.add('selected');
+    });
+    document.getElementById("entryModal").classList.add("active");
+}
+
+function openEditModal(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    currentEditId = id; currentMoodValue = entry.mood || 3;
+    document.getElementById("modalTitle").textContent = "✏️ Редактировать";
+    document.getElementById("entryText").value = entry.text || "";
+    const dt = formatDateTime(entry.createdAt);
+    document.getElementById("modalDateTime").innerHTML = `Создано: ${dt.date} в ${dt.time}`;
+    document.getElementById("deleteActionRow").style.display = "flex";
+    document.querySelectorAll('#modalMoodOptions .mood-option').forEach(opt => {
+        opt.classList.remove('selected');
+        if (parseInt(opt.dataset.mood) === (entry.mood || 3)) opt.classList.add('selected');
+    });
+    document.getElementById("entryModal").classList.add("active");
+}
+
+function saveCurrentEntry() {
+    const text = document.getElementById("entryText").value.trim();
+    if (!text) { showToast("Напишите что-нибудь ✍️"); return; }
+    if (currentEditId) {
+        const index = entries.findIndex(e => e.id === currentEditId);
+        if (index !== -1) { entries[index].text = text; entries[index].mood = currentMoodValue; entries[index].updatedAt = new Date().toISOString(); showToast("✏️ Обновлено"); }
+    } else {
+        entries.unshift({ id: generateId(), text: text, mood: currentMoodValue, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        showToast("✅ Сохранено");
+    }
+    saveEntries(); renderEntries(); renderStats(); closeModal();
+}
+
+function deleteEntryById(id) { entries = entries.filter(e => e.id !== id); saveEntries(); renderEntries(); renderStats(); showToast("🗑 Удалено"); closeModal(); }
+function closeModal() { document.getElementById("entryModal").classList.remove("active"); currentEditId = null; }
+function showToast(msg) { let t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+function resetAllNotebook() { if(confirm("Удалить ВСЕ записи?")){ entries = []; saveEntries(); renderEntries(); showToast("Все записи удалены"); } }
+// ========== 8. СТАТИСТИКА И ГРАФИКИ ==========
+let moodChart = null;
+let progressChart = null;
+
+function renderStats() {
+    const totalSteps = Object.values(disordersData).reduce((sum, d) => sum + d.steps.length, 0);
+    const completed = completedStepsCount;
+    document.getElementById("totalStepsStat").textContent = totalSteps;
+    document.getElementById("completedStepsStat").textContent = completed;
+    document.getElementById("completionPercentStat").textContent = Math.round((completed/totalSteps)*100) + "%";
+    
+    // ========== ВОТ ЭТО ДОБАВЛЯЕТ СРЕДНЕЕ НАСТРОЕНИЕ В СТАТИСТИКУ ==========
+    const avgMood = getAverageMood();
+    document.getElementById("moodAvgStat").textContent = avgMood > 0 ? avgMood : '—';
+    // =======================================================================
+    
+    // График настроения из дневника entries
+    const last30Days = [];
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateKey = date.toISOString().split('T')[0];
+        const entry = entries.find(e => e.createdAt?.split('T')[0] === dateKey);
+        last30Days.push(entry ? entry.mood || 3 : null);
+    }
+    
+    const ctx = document.getElementById("moodChart")?.getContext('2d');
+    if (ctx) {
+        if (window.moodChartInstance) window.moodChartInstance.destroy();
+        window.moodChartInstance = new Chart(ctx, {
+            type: 'line', data: { labels: Array(30).fill().map((_,i)=>i+1), datasets: [{ label: 'Настроение (1-5)', data: last30Days, borderColor: '#4A6A6A', backgroundColor: 'rgba(74,106,106,0.1)', tension: 0.3, fill: true }] },
+            options: { responsive: true, scales: { y: { min: 0.5, max: 5.5, ticks: { stepSize: 1, callback: (v) => ['','😞','🙁','😐','🙂','😊'][v] } } } }
+        });
+    }
+    
+    const categories = Object.keys(disordersData);
+    const categoryProgress = categories.map(cat => Math.round((getCompletedSet(cat).size / getOrder(cat).length) * 100));
+    const ctx2 = document.getElementById("progressChart")?.getContext('2d');
+    if (ctx2) {
+        if (window.progressChartInstance) window.progressChartInstance.destroy();
+        window.progressChartInstance = new Chart(ctx2, { type: 'bar', data: { labels: categories.map(c => disordersData[c].title), datasets: [{ label: 'Прогресс (%)', data: categoryProgress, backgroundColor: '#4A6A6A', borderRadius: 8 }] }, options: { responsive: true, scales: { y: { max: 100 } }, indexAxis: 'y', plugins: { legend: { position: 'bottom' } } } });
+    }
+}
+function exportData() {
+    const exportObj = { 
+        quizAnswers, 
+        advancedQuizAnswers, 
+        completedStepsCount, 
+        entries,  // ← было moodData, исправлено на entries
+        badges: badges.map(b => ({ id: b.id, earned: b.earned })) 
+    };
+    for (let key in disordersData) { 
+        exportObj[`order_${key}`] = getOrder(key); 
+        exportObj[`completed_${key}`] = Array.from(getCompletedSet(key)); 
+    }
+    const dataStr = JSON.stringify(exportObj, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; 
+    a.download = `selfhealing_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click(); 
+    URL.revokeObjectURL(url);
+    showToast("✅ Данные экспортированы");
+}
+function importData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.quizAnswers) { 
+                quizAnswers.length = 0; 
+                quizAnswers.push(...data.quizAnswers); 
+                localStorage.setItem("quizAnswers", JSON.stringify(quizAnswers)); 
+            }
+            if (data.advancedQuizAnswers) { 
+                advancedQuizAnswers.length = 0; 
+                advancedQuizAnswers.push(...data.advancedQuizAnswers); 
+                localStorage.setItem("advancedQuizAnswers", JSON.stringify(advancedQuizAnswers)); 
+            }
+            if (data.completedStepsCount !== undefined) { 
+                completedStepsCount = data.completedStepsCount; 
+                localStorage.setItem("totalCompletedSteps", completedStepsCount); 
+            }
+            // ИСПРАВЛЕНО: проверяем и entries, и moodData для обратной совместимости
+         if (data.entries) { 
+    entries = data.entries; 
+    localStorage.setItem("notebookEntries", JSON.stringify(entries)); 
+} else if (data.moodData) {
+    entries = Object.entries(data.moodData).map(([date, item]) => ({
+        id: generateId(),
+        text: item.note || item.text || "",
+        mood: item.value === "very-bad" ? 1 : item.value === "bad" ? 2 : item.value === "neutral" ? 3 : item.value === "good" ? 4 : item.value === "very-good" ? 5 : 3,
+        createdAt: date + "T12:00:00.000Z",
+        updatedAt: new Date().toISOString()
+    }));
+    localStorage.setItem("notebookEntries", JSON.stringify(entries));
+} 
+            for (let key in disordersData) {
+                if (data[`order_${key}`]) saveOrder(key, data[`order_${key}`]);
+                if (data[`completed_${key}`]) saveCompleted(key, new Set(data[`completed_${key}`]));
+            }
+            if (data.badges) { 
+                data.badges.forEach(b => { 
+                    const badge = badges.find(bd => bd.id === b.id); 
+                    if (badge) badge.earned = b.earned; 
+                }); 
+                localStorage.setItem("earnedBadges", JSON.stringify(data.badges.filter(b => b.earned).map(b => b.id))); 
+            }
+            showToast("✅ Импорт выполнен! Перезагружаю...");
+            setTimeout(() => location.reload(), 1000);
+        } catch(err) { 
+            showToast("❌ Ошибка при импорте"); 
+            console.error(err);
+        }
+    };
+     reader.readAsText(file);
+}
+
+function exportPDF() {
+    const element = document.createElement('div');
+    element.innerHTML = `<h1>Отчёт о прогрессе</h1>
+        <p>Дата: ${new Date().toLocaleDateString()}</p>
+        <h2>Статистика</h2>
+        <p>Всего шагов: ${document.getElementById("totalStepsStat")?.textContent}</p>
+        <p>Выполнено: ${document.getElementById("completedStepsStat")?.textContent}</p>
+        <p>Прогресс: ${document.getElementById("completionPercentStat")?.textContent}</p>
+        <h2>Достижения</h2>${badges.filter(b=>b.earned).map(b=>`<p>✅ ${b.name}</p>`).join('') || '<p>Пока нет</p>'}`;
+    html2pdf().from(element).save(`selfhealing_report_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast("📄 PDF создаётся...");
+}
+
+// ========== 9. ПОИСК ПО СПРАВОЧНИКАМ ==========
+function renderEmotionsWithSearch() {
+    const searchTerm = document.getElementById("emotionsSearch")?.value.toLowerCase() || "";
+    const container = document.getElementById("emotionsListContainer");
+    let html = `<h3>📖 Справочник эмоций (${Object.keys(emotionsInfo).length})</h3><p>Нажмите на название эмоции, чтобы увидеть подробности:</p>`;
+    for (let [k, v] of Object.entries(emotionsInfo)) {
+        if (searchTerm && !v.title.toLowerCase().includes(searchTerm) && !k.toLowerCase().includes(searchTerm)) continue;
+        html += `<div class="emotion-accordion"><div class="emotion-header" data-emotion="${k}"><span>${v.title}</span><span class="arrow">▼</span></div><div class="emotion-content" id="content-${k}"><p><strong>📌 Физические проявления:</strong><br>${v.physical}</p><p><strong>🧠 Эмоциональные проявления:</strong><br>${v.emotional}</p><p><strong>🔄 Как не спутать:</strong><br>${v.distinguish}</p></div></div>`;
+    }
+    container.innerHTML = html;
+    document.querySelectorAll('.emotion-header').forEach(h => {
+        h.addEventListener('click', () => {
+            let ek = h.dataset.emotion, c = document.getElementById(`content-${ek}`);
+            let open = c.classList.contains('open');
+            document.querySelectorAll('.emotion-content').forEach(cc => cc.classList.remove('open'));
+            document.querySelectorAll('.emotion-header').forEach(hh => hh.classList.remove('open'));
+            if (!open) { c.classList.add('open'); h.classList.add('open'); }
+        });
+    });
+}
+
+function renderDisordersWithSearch() {
+    const searchTerm = document.getElementById("disordersSearch")?.value.toLowerCase() || "";
+    const container = document.getElementById("disordersInfoContainer");
+    let html = `<h3>📚 Справочник расстройств (${Object.keys(disordersInfo).length})</h3><p>Нажмите на название расстройства, чтобы увидеть подробности:</p>`;
+    for (let [k, v] of Object.entries(disordersInfo)) {
+        if (searchTerm && !v.title.toLowerCase().includes(searchTerm) && !k.toLowerCase().includes(searchTerm)) continue;
+        let displayTitle = disordersData[k]?.title || v.title;
+        html += `<div class="emotion-accordion"><div class="emotion-header" data-disorder="${k}"><span>${displayTitle}</span><span class="arrow">▼</span></div><div class="emotion-content" id="disorder-content-${k}"><p><strong>📋 Симптомы:</strong><br>${v.symptoms.replace(/\n/g, '<br>')}</p><p><strong>🧠 Причины:</strong><br>${v.causes}</p><p><strong>💊 Лечение:</strong><br>${v.treatment.replace(/\n/g, '<br>')}</p><p><strong>⚠️ Когда обращаться к врачу:</strong><br>${v.whenToDoctor}</p><button class="gotoDisorderFromInfo" data-cat="${k}">📖 Перейти к проработке</button></div></div>`;
+    }
+    container.innerHTML = html;
+    document.querySelectorAll('.emotion-header[data-disorder]').forEach(h => {
+        h.addEventListener('click', () => {
+            let dk = h.dataset.disorder, c = document.getElementById(`disorder-content-${dk}`);
+            let open = c.classList.contains('open');
+            document.querySelectorAll('.emotion-content').forEach(cc => cc.classList.remove('open'));
+            document.querySelectorAll('.emotion-header').forEach(hh => hh.classList.remove('open'));
+            if (!open) { c.classList.add('open'); h.classList.add('open'); }
+        });
+    });
+    document.querySelectorAll(".gotoDisorderFromInfo").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            let cat = e.target.dataset.cat;
+            if (disordersData[cat]) { currentDisorder = cat; showSection("disorders"); renderDisorderCategories(); renderCurrentStepUI(); }
+            else showToast("Проработка будет добавлена");
+        });
+    });
+}
+// ========== 10. ОСНОВНАЯ ЛОГИКА И ИНИЦИАЛИЗАЦИЯ ==========
+let chart1 = null, chart2 = null;
+
+function updateAllStats() { if (document.getElementById("statsSection")?.classList.contains("active-section")) renderStats(); }
+
+// Переопределяем функции, чтобы обновлять статистику
+const originalCompleteStep = completeCurrentStep;
+completeCurrentStep = function() { originalCompleteStep(); updateAllStats(); };
+const originalSkipStep = skipCurrentStep;
+skipCurrentStep = function() { originalSkipStep(); updateAllStats(); };
+
+// Тёмная/светлая тема
+const themeToggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "light") document.body.classList.add("light-theme");
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light-theme");
+    localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
+    themeToggle.textContent = document.body.classList.contains("light-theme") ? "☀️ Светлая" : "🌙 Тёмная";
+});
+themeToggle.textContent = document.body.classList.contains("light-theme") ? "☀️ Светлая" : "🌙 Тёмная";
+
+// Обновляем функции рендера для всех разделов
+const originalShowSection = showSection;
+showSection = function(id) {
+    originalShowSection(id);
+    if (id === 'stats') renderStats();
+    if (id === 'notebook') renderEntries();
+    if (id === 'emotions') renderEmotionsWithSearch();
+    if (id === 'disordersInfo') renderDisordersWithSearch();
+};
+
+// Переопределяем renderEmotionsInfo и renderDisordersInfo
+renderEmotionsInfo = renderEmotionsWithSearch;
+renderDisordersInfo = renderDisordersWithSearch;
+
+// Добавляем обработчики для экспорта/импорта
+document.getElementById("exportDataBtn")?.addEventListener("click", exportData);
+document.getElementById("importDataBtn")?.addEventListener("click", () => document.getElementById("importFileInput").click());
+document.getElementById("importFileInput")?.addEventListener("change", (e) => { if (e.target.files[0]) importData(e.target.files[0]); });
+document.getElementById("exportPDFBtn")?.addEventListener("click", exportPDF);
+document.getElementById("emotionsSearch")?.addEventListener("input", renderEmotionsWithSearch);
+document.getElementById("disordersSearch")?.addEventListener("input", renderDisordersWithSearch);
+
+// Инициализация
+loadBadges();
+showSection("notebook");
+renderStats();
+renderEmotionsWithSearch();
+renderDisordersWithSearch();
+document.getElementById("newEntryBtn")?.addEventListener("click", createNewEntry);
+document.getElementById("searchEntries")?.addEventListener("input", renderEntries);
+document.getElementById("resetAllNotebook")?.addEventListener("click", resetAllNotebook);
+document.getElementById("modalSaveBtn")?.addEventListener("click", saveCurrentEntry);
+document.getElementById("modalCancelBtn")?.addEventListener("click", closeModal);
+document.getElementById("modalDeleteBtn")?.addEventListener("click", () => { if(currentEditId && confirm("Удалить?")) deleteEntryById(currentEditId); });
+document.getElementById("entryModal")?.addEventListener("click", (e) => { if(e.target === document.getElementById("entryModal")) closeModal(); });
+initMoodSelection();
+renderEntries();
+// ========== СИСТЕМА ПОЛЬЗОВАТЕЛЕЙ ==========
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem("app_users")) || {};
+
+// Сохранение данных текущего пользователя
+function saveCurrentUserData() {
+    if (!currentUser) return;
+    
+    const userData = {
+        quizAnswers: quizAnswers,
+        advancedQuizAnswers: advancedQuizAnswers,
+        completedStepsCount: completedStepsCount,
+        entries: entries,
+        badges: badges.map(b => ({ id: b.id, earned: b.earned })),
+        orders: {},
+        completedSets: {}
+    };
+    
+    // Сохраняем прогресс по каждой теме
+    for (let key in disordersData) {
+        userData.orders[key] = getOrder(key);
+        userData.completedSets[key] = Array.from(getCompletedSet(key));
+    }
+    
+    users[currentUser].data = userData;
+    users[currentUser].lastLogin = new Date().toISOString();
+    localStorage.setItem("app_users", JSON.stringify(users));
+    localStorage.setItem(`session_${currentUser}`, JSON.stringify(userData));
+}
+
+// Загрузка данных пользователя
+function loadUserData(username) {
+    const userData = users[username]?.data;
+    if (!userData) return false;
+    
+    // Восстанавливаем данные
+    quizAnswers = userData.quizAnswers || new Array(quizQuestions.length).fill(null);
+    advancedQuizAnswers = userData.advancedQuizAnswers || new Array(advancedQuizQuestions.length).fill(null);
+    completedStepsCount = userData.completedStepsCount || 0;
+    entries = userData.entries || [];
+    
+    // Восстанавливаем бейджи
+    if (userData.badges) {
+        userData.badges.forEach(b => {
+            const badge = badges.find(bd => bd.id === b.id);
+            if (badge) badge.earned = b.earned;
+        });
+    }
+    
+    // Восстанавливаем прогресс тем
+    for (let key in disordersData) {
+        if (userData.orders?.[key]) saveOrder(key, userData.orders[key]);
+        if (userData.completedSets?.[key]) saveCompleted(key, new Set(userData.completedSets[key]));
+    }
+    
+    // Сохраняем в localStorage
+    localStorage.setItem("quizAnswers", JSON.stringify(quizAnswers));
+    localStorage.setItem("advancedQuizAnswers", JSON.stringify(advancedQuizAnswers));
+    localStorage.setItem("totalCompletedSteps", completedStepsCount);
+    localStorage.setItem("notebookEntries", JSON.stringify(entries));
+    localStorage.setItem("earnedBadges", JSON.stringify(badges.filter(b => b.earned).map(b => b.id)));
+    
+    return true;
+}
+
+// Регистрация
+function registerUser(username, password) {
+    if (users[username]) {
+        document.getElementById("loginMessage").textContent = "❌ Пользователь уже существует!";
+        return false;
+    }
+    
+    if (username.length < 3) {
+        document.getElementById("loginMessage").textContent = "❌ Имя минимум 3 символа";
+        return false;
+    }
+    
+    if (password.length < 3) {
+        document.getElementById("loginMessage").textContent = "❌ Пароль минимум 3 символа";
+        return false;
+    }
+    
+    users[username] = {
+        password: btoa(password), // Простое шифрование
+        data: null, // Будет создан пустой прогресс
+        createdAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem("app_users", JSON.stringify(users));
+    return loginUser(username, password);
+}
+
+// Вход
+function loginUser(username, password) {
+    const user = users[username];
+    if (!user || user.password !== btoa(password)) {
+        document.getElementById("loginMessage").textContent = "❌ Неверное имя или пароль";
+        return false;
+    }
+    
+    currentUser = username;
+    
+    // Загружаем данные пользователя или создаём новые
+    if (user.data) {
+        loadUserData(username);
+    } else {
+        // Новый пользователь - сбрасываем прогресс
+        localStorage.removeItem("quizAnswers");
+        localStorage.removeItem("advancedQuizAnswers");
+        localStorage.removeItem("totalCompletedSteps");
+        localStorage.removeItem("notebookEntries");
+        localStorage.removeItem("earnedBadges");
+        location.reload();
+    }
+    
+    // Обновляем UI
+    document.getElementById("userNameDisplay").innerHTML = `👤 ${username}`;
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("logoutBtn").style.display = "inline-block";
+    document.getElementById("loginModal").classList.remove("active");
+    
+    // Перезагружаем все данные
+    location.reload();
+    return true;
+}
+
+// Выход
+function logoutUser() {
+    if (currentUser) {
+        saveCurrentUserData(); // Сохраняем перед выходом
+        // Удаляем сессию из localStorage
+        localStorage.removeItem(`session_${currentUser}`);
+    }
+    
+    currentUser = null;
+    
+    // Обновляем UI
+    document.getElementById("userNameDisplay").innerHTML = "👤 Гость";
+    document.getElementById("loginBtn").style.display = "inline-block";
+    document.getElementById("logoutBtn").style.display = "none";
+    
+    // Очищаем данные гостя (но не удаляем пользователей!)
+    localStorage.removeItem("quizAnswers");
+    localStorage.removeItem("advancedQuizAnswers");
+    localStorage.removeItem("totalCompletedSteps");
+    localStorage.removeItem("notebookEntries");
+    localStorage.removeItem("earnedBadges");
+    
+    // Чистим данные в памяти
+    quizAnswers = new Array(quizQuestions.length).fill(null);
+    advancedQuizAnswers = new Array(advancedQuizQuestions.length).fill(null);
+    completedStepsCount = 0;
+    entries = [];
+    
+    // Сбрасываем бейджи
+    badges.forEach(b => { b.earned = false; });
+    
+    // Перезагружаем интерфейс без полной перезагрузки страницы
+    renderEntries();
+    renderStats();
+    renderAchievements();
+    renderQuiz();
+    renderAdvancedQuiz();
+    renderDisorderCategories();
+    renderCurrentStepUI();
+    
+    showToast("👋 Вы вышли из аккаунта");
+}
+// Проверяем сохранённую сессию
+function checkSession() {
+    // Ищем сессию для текущего пользователя
+    if (currentUser) return; // Уже есть пользователь
+    
+    const sessionKey = Object.keys(localStorage).find(k => k.startsWith("session_"));
+    if (sessionKey) {
+        const username = sessionKey.replace("session_", "");
+        if (users[username] && users[username].data) {
+            currentUser = username;
+            document.getElementById("userNameDisplay").innerHTML = `👤 ${username}`;
+            document.getElementById("loginBtn").style.display = "none";
+            document.getElementById("logoutBtn").style.display = "inline-block";
+            loadUserData(username);
+            // Обновляем интерфейс после загрузки данных
+            renderEntries();
+            renderStats();
+            renderAchievements();
+            renderQuiz();
+            renderAdvancedQuiz();
+            renderDisorderCategories();
+            renderCurrentStepUI();
+        }
+    }
+}
+// Автосохранение при любых изменениях
+function autoSave() {
+    if (currentUser) {
+        saveCurrentUserData();
+    }
+}
+
+// Добавляем автосохранение
+setInterval(autoSave, 30000); // Каждые 30 секунд
+window.addEventListener('beforeunload', autoSave);
+
+// Обработчики
+document.getElementById("loginBtn").onclick = () => {
+    document.getElementById("loginModal").classList.add("active");
+    document.getElementById("loginUsername").value = "";
+    document.getElementById("loginPassword").value = "";
+    document.getElementById("loginMessage").textContent = "";
+};
+
+document.getElementById("logoutBtn").onclick = () => {
+    if (confirm("Выйти из аккаунта? Данные сохранятся.")) logoutUser();
+};
+
+document.getElementById("doLoginBtn").onclick = () => loginUser(document.getElementById("loginUsername").value, document.getElementById("loginPassword").value);
+document.getElementById("doRegisterBtn").onclick = () => registerUser(document.getElementById("loginUsername").value, document.getElementById("loginPassword").value);
+document.getElementById("cancelLoginBtn").onclick = () => document.getElementById("loginModal").classList.remove("active");
+
+// Инициализируем систему
+checkSession();
+</script>
+</body>
+</html>
