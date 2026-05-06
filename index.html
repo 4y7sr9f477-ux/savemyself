@@ -1449,14 +1449,13 @@ document.getElementById("modalDeleteBtn")?.addEventListener("click", () => { if(
 document.getElementById("entryModal")?.addEventListener("click", (e) => { if(e.target === document.getElementById("entryModal")) closeModal(); });
 initMoodSelection();
 renderEntries();
-// ========== СИСТЕМА ПОЛЬЗОВАТЕЛЕЙ ==========
+// ========== СИСТЕМА ПОЛЬЗОВАТЕЛЕЙ (рабочая) ==========
 let currentUser = null;
 let users = JSON.parse(localStorage.getItem("app_users")) || {};
 
 // Сохранение данных текущего пользователя
 function saveCurrentUserData() {
     if (!currentUser) return;
-    
     const userData = {
         quizAnswers: quizAnswers,
         advancedQuizAnswers: advancedQuizAnswers,
@@ -1466,13 +1465,10 @@ function saveCurrentUserData() {
         orders: {},
         completedSets: {}
     };
-    
-    // Сохраняем прогресс по каждой теме
     for (let key in disordersData) {
         userData.orders[key] = getOrder(key);
         userData.completedSets[key] = Array.from(getCompletedSet(key));
     }
-    
     users[currentUser].data = userData;
     users[currentUser].lastLogin = new Date().toISOString();
     localStorage.setItem("app_users", JSON.stringify(users));
@@ -1483,34 +1479,25 @@ function saveCurrentUserData() {
 function loadUserData(username) {
     const userData = users[username]?.data;
     if (!userData) return false;
-    
-    // Восстанавливаем данные
     quizAnswers = userData.quizAnswers || new Array(quizQuestions.length).fill(null);
     advancedQuizAnswers = userData.advancedQuizAnswers || new Array(advancedQuizQuestions.length).fill(null);
     completedStepsCount = userData.completedStepsCount || 0;
     entries = userData.entries || [];
-    
-    // Восстанавливаем бейджи
     if (userData.badges) {
         userData.badges.forEach(b => {
             const badge = badges.find(bd => bd.id === b.id);
             if (badge) badge.earned = b.earned;
         });
     }
-    
-    // Восстанавливаем прогресс тем
     for (let key in disordersData) {
         if (userData.orders?.[key]) saveOrder(key, userData.orders[key]);
         if (userData.completedSets?.[key]) saveCompleted(key, new Set(userData.completedSets[key]));
     }
-    
-    // Сохраняем в localStorage
     localStorage.setItem("quizAnswers", JSON.stringify(quizAnswers));
     localStorage.setItem("advancedQuizAnswers", JSON.stringify(advancedQuizAnswers));
     localStorage.setItem("totalCompletedSteps", completedStepsCount);
     localStorage.setItem("notebookEntries", JSON.stringify(entries));
     localStorage.setItem("earnedBadges", JSON.stringify(badges.filter(b => b.earned).map(b => b.id)));
-    
     return true;
 }
 
@@ -1520,24 +1507,21 @@ function registerUser(username, password) {
         document.getElementById("loginMessage").textContent = "❌ Пользователь уже существует!";
         return false;
     }
-    
     if (username.length < 3) {
         document.getElementById("loginMessage").textContent = "❌ Имя минимум 3 символа";
         return false;
     }
-    
     if (password.length < 3) {
         document.getElementById("loginMessage").textContent = "❌ Пароль минимум 3 символа";
         return false;
     }
-    
     users[username] = {
-        password: btoa(password), // Простое шифрование
-        data: null, // Будет создан пустой прогресс
+        password: btoa(password),
+        data: null,
         createdAt: new Date().toISOString()
     };
-    
     localStorage.setItem("app_users", JSON.stringify(users));
+    // Автоматически входим после регистрации
     return loginUser(username, password);
 }
 
@@ -1548,14 +1532,11 @@ function loginUser(username, password) {
         document.getElementById("loginMessage").textContent = "❌ Неверное имя или пароль";
         return false;
     }
-    
     currentUser = username;
-    
-    // Загружаем данные пользователя или создаём новые
     if (user.data) {
         loadUserData(username);
     } else {
-        // Новый пользователь - сбрасываем прогресс
+        // Новый пользователь: очищаем данные
         localStorage.removeItem("quizAnswers");
         localStorage.removeItem("advancedQuizAnswers");
         localStorage.removeItem("totalCompletedSteps");
@@ -1563,14 +1544,11 @@ function loginUser(username, password) {
         localStorage.removeItem("earnedBadges");
         location.reload();
     }
-    
-    // Обновляем UI
     document.getElementById("userNameDisplay").innerHTML = `👤 ${username}`;
     document.getElementById("loginBtn").style.display = "none";
     document.getElementById("logoutBtn").style.display = "inline-block";
     document.getElementById("loginModal").classList.remove("active");
-    
-    // Перезагружаем все данные
+    // Принудительно обновляем интерфейс
     location.reload();
     return true;
 }
@@ -1578,35 +1556,24 @@ function loginUser(username, password) {
 // Выход
 function logoutUser() {
     if (currentUser) {
-        saveCurrentUserData(); // Сохраняем перед выходом
-        // Удаляем сессию из localStorage
+        saveCurrentUserData();
         localStorage.removeItem(`session_${currentUser}`);
     }
-    
     currentUser = null;
-    
-    // Обновляем UI
     document.getElementById("userNameDisplay").innerHTML = "👤 Гость";
     document.getElementById("loginBtn").style.display = "inline-block";
     document.getElementById("logoutBtn").style.display = "none";
-    
-    // Очищаем данные гостя (но не удаляем пользователей!)
     localStorage.removeItem("quizAnswers");
     localStorage.removeItem("advancedQuizAnswers");
     localStorage.removeItem("totalCompletedSteps");
     localStorage.removeItem("notebookEntries");
     localStorage.removeItem("earnedBadges");
-    
-    // Чистим данные в памяти
+    // Сброс переменных
     quizAnswers = new Array(quizQuestions.length).fill(null);
     advancedQuizAnswers = new Array(advancedQuizQuestions.length).fill(null);
     completedStepsCount = 0;
     entries = [];
-    
-    // Сбрасываем бейджи
     badges.forEach(b => { b.earned = false; });
-    
-    // Перезагружаем интерфейс без полной перезагрузки страницы
     renderEntries();
     renderStats();
     renderAchievements();
@@ -1614,14 +1581,12 @@ function logoutUser() {
     renderAdvancedQuiz();
     renderDisorderCategories();
     renderCurrentStepUI();
-    
     showToast("👋 Вы вышли из аккаунта");
 }
-// Проверяем сохранённую сессию
+
+// Проверка сессии
 function checkSession() {
-    // Ищем сессию для текущего пользователя
-    if (currentUser) return; // Уже есть пользователь
-    
+    if (currentUser) return;
     const sessionKey = Object.keys(localStorage).find(k => k.startsWith("session_"));
     if (sessionKey) {
         const username = sessionKey.replace("session_", "");
@@ -1631,7 +1596,6 @@ function checkSession() {
             document.getElementById("loginBtn").style.display = "none";
             document.getElementById("logoutBtn").style.display = "inline-block";
             loadUserData(username);
-            // Обновляем интерфейс после загрузки данных
             renderEntries();
             renderStats();
             renderAchievements();
@@ -1642,34 +1606,29 @@ function checkSession() {
         }
     }
 }
-// Автосохранение при любых изменениях
-function autoSave() {
-    if (currentUser) {
-        saveCurrentUserData();
-    }
-}
 
-// Добавляем автосохранение
-setInterval(autoSave, 30000); // Каждые 30 секунд
+// Автосохранение
+function autoSave() {
+    if (currentUser) saveCurrentUserData();
+}
+setInterval(autoSave, 30000);
 window.addEventListener('beforeunload', autoSave);
 
-// Обработчики
+// Обработчики кнопок
 document.getElementById("loginBtn").onclick = () => {
     document.getElementById("loginModal").classList.add("active");
     document.getElementById("loginUsername").value = "";
     document.getElementById("loginPassword").value = "";
     document.getElementById("loginMessage").textContent = "";
 };
-
 document.getElementById("logoutBtn").onclick = () => {
     if (confirm("Выйти из аккаунта? Данные сохранятся.")) logoutUser();
 };
-
 document.getElementById("doLoginBtn").onclick = () => loginUser(document.getElementById("loginUsername").value, document.getElementById("loginPassword").value);
 document.getElementById("doRegisterBtn").onclick = () => registerUser(document.getElementById("loginUsername").value, document.getElementById("loginPassword").value);
 document.getElementById("cancelLoginBtn").onclick = () => document.getElementById("loginModal").classList.remove("active");
 
-// Инициализируем систему
+// Инициализация системы
 checkSession();
 </script>
 </body>
